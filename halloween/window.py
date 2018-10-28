@@ -32,28 +32,6 @@ def wheel(pos):
         return (0, int(pos * 3), int(255 - pos * 3))
 
 
-def back_and_forth(wait):
-    purple = 0x100000
-    black = (0, 0, 0)
-    for i in range(len(pixels)):
-        pixels[i] = purple
-        pixels.show()
-        time.sleep(wait)
-        pixels[i] = black
-        pixels.show()
-        time.sleep(wait)
-    time.sleep(1)
-
-    for i in range(len(pixels)):
-        pixels[pixnum - 1 - i] = purple
-        pixels.show()
-        time.sleep(wait)
-        pixels[pixnum - 1 - i] = black
-        pixels.show()
-        time.sleep(wait)
-    time.sleep(1)
-
-
 def blank():
     black = (0, 0, 0)
     for i in range(0, pixnum):
@@ -62,7 +40,48 @@ def blank():
     time.sleep(.5)
 
 
-def shifter(wait, color=''):
+def green_fader():
+    green_rgb = fancy.CRGB(34, 139, 34)
+    inc = .5
+    j = 10
+    while True:
+        if j > 2:
+            print(j)
+            j = j - inc
+            print(j)
+            color = fancy.gamma_adjust(green_rgb, gamma_value=j)
+            green = color.pack()
+            for i in range(len(pixels)):
+                pixels[i] = green
+            pixels.show()
+        if j <= 2.1:
+            print(j)
+            color = fancy.gamma_adjust(green_rgb, gamma_value=j)
+            green = color.pack()
+            for i in range(len(pixels)):
+                pixels[i] = green
+            pixels.show()
+            j += inc
+
+'''
+    for j in [10 - (x * .5) for x in range(0, 15, 3)]:
+        print(j)
+        color = fancy.gamma_adjust(green_rgb, gamma_value=j)
+        green = color.pack()
+        for i in range(len(pixels)):
+            pixels[i] = green
+        pixels.show()
+    for k in [1 + (x * .5) for x in range(0, 15, 3)]:
+        print(k)
+        color = fancy.gamma_adjust(green_rgb, gamma_value=k)
+        green = color.pack()
+        for i in range(len(pixels)):
+            pixels[i] = green
+        pixels.show()
+   '''
+
+
+def marquee(wait, color=''):
     if not color:
         color = (0, 0, 0x10)
     black = (0, 0, 0)
@@ -86,32 +105,6 @@ def shifter(wait, color=''):
         pixels[item] = color
     pixels.show()
     time.sleep(wait)
-
-
-def fill_the_glass(wait):
-    purple = (0x10, 0, 0x10)
-    black = (0, 0, 0)
-    lit_array = []
-    for i in range(pixnum):
-        # print('lit array is: {}'.format(lit_array))
-        if lit_array:
-            for led in lit_array:
-                # print('made it in here with {} as type {}'.format(led, type(led))) # noqa
-                pixels[led - 1] = purple
-        pixels.show()
-        # print('i is {}'.format(i))
-        for j in range(pixnum):
-            # print('j is {}'.format(j))
-            if j < pixnum - i - 1:
-                pixels[j] = purple
-                pixels.show()
-                time.sleep(wait)
-                pixels[j] = black
-                pixels.show()
-                time.sleep(wait)
-                # print(pixnum - i)
-        lit_array.append(pixnum - i)
-        time.sleep(wait)
 
 
 def simplecircle(wait, color=''):
@@ -147,34 +140,13 @@ def simplecircle(wait, color=''):
     time.sleep(1)
 
 
-def shifter_loop(sleep=2, color=''):
+def marquee_loop(sleep=2, color=''):
     loops = 10
     for i in range(1, loops):
         if i < loops:
-            print(i)
-            print(loops)
-            shifter(sleep, color)
+            print('marquee loop: {} of {}'.format(i, loops))
+            marquee(sleep, color)
             i += 1
-    blank()
-
-
-def backandforth_loop():
-    loops = 2
-    for i in range(1, loops):
-        if i < loops:
-            print(i)
-            print(loops)
-            back_and_forth(.00000001)
-            i += 1
-    blank()
-
-
-def fill_the_glass_loop():
-    sleep_val = float(.00125)
-    for trial in range(1, 7):
-        fill_the_glass(sleep_val)
-        # print('sleep val is {}'.format(sleep_val))
-        sleep_val = sleep_val / 2.5
     blank()
 
 
@@ -182,14 +154,13 @@ def circle_loop(color=''):
     loops = 2
     for i in range(1, loops):
         if i < loops:
-            print(i)
-            print(loops)
+            print('circle loop: {} of {}'.format(i, loops))
             simplecircle(.0005, color)
             i += 1
+    blank()
 
 # tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
-# tricks = [circle_loop(purp), circle_loop(dark_orage), shifter_loop]
-tricks = [shifter_loop(.0125, dark_orage)]
+tricks = [circle_loop(purp), circle_loop(dark_orage), marquee_loop(sleep=2, color=purp)] # noqa
 
 while True:
     random.choice(tricks)()
