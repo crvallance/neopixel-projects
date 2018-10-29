@@ -17,19 +17,9 @@ dark_orage = orange_adj_1.pack()
 base_purple = fancy.CRGB(0x10, 0, 0x10)
 purple_adj_1 = fancy.gamma_adjust(base_purple, gamma_value=.75)
 purp = purple_adj_1.pack()
-
-
-def wheel(pos):
-    # Input a value 0 to 255 to get a color value.
-    # The colours are a transition r - g - b - back to r.
-    if pos < 85:
-        return (int(pos * 3), int(255 - (pos * 3)), 0)
-    elif pos < 170:
-        pos -= 85
-        return (int(255 - (pos * 3)), 0, int(pos * 3))
-    else:
-        pos -= 170
-        return (0, int(pos * 3), int(255 - pos * 3))
+r_window = range(1, 120 + 1)
+c_window = range(121, 244 + 1)
+l_window = range(245, 364 + 1)
 
 
 def blank():
@@ -107,7 +97,7 @@ def marquee(wait, color=''):
     time.sleep(wait)
 
 
-def simplecircle(wait, color=''):
+def simplechase(wait, color=''):
     if not color:
         color = (0, 0, 0x10)
     # red = 0x100000  # (0x10, 0, 0) also works
@@ -141,6 +131,7 @@ def simplecircle(wait, color=''):
 
 
 def marquee_loop(sleep=2, color=''):
+    print('random color is: {}'.format(color))
     loops = 10
     for i in range(1, loops):
         if i < loops:
@@ -150,17 +141,18 @@ def marquee_loop(sleep=2, color=''):
     blank()
 
 
-def circle_loop(color=''):
-    loops = 2
+def chase_loop(color=''):
+    print('random color is: {}'.format(color))
+    loops = 4
     for i in range(1, loops):
         if i < loops:
-            print('circle loop: {} of {}'.format(i, loops))
-            simplecircle(.0005, color)
+            print('chase loop: {} of {}'.format(i, loops))
+            simplechase(.0005, color)
             i += 1
     blank()
 
 # tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
-tricks = [circle_loop(purp), circle_loop(dark_orage), marquee_loop(sleep=2, color=purp)] # noqa
-
+tricks = [chase_loop, marquee_loop] # noqa
+colors = [dark_orage, purp]
 while True:
-    random.choice(tricks)()
+    random.choice(tricks)(color=random.choice(colors))
