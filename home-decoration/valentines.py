@@ -87,7 +87,7 @@ def marquee(wait, color=''):
         else:
             odds.append(num)
     for item in evens:
-        pixels[item] = color
+        pixels[item] = dark_red
     for item in odds:
         pixels[item] = black
     pixels.show()
@@ -95,7 +95,7 @@ def marquee(wait, color=''):
     for item in evens:
         pixels[item] = black
     for item in odds:
-        pixels[item] = color
+        pixels[item] = white
     pixels.show()
     time.sleep(wait)
 
@@ -159,9 +159,9 @@ def simplechase(wait, color=''):
     time.sleep(1)
 
 
-def marquee_loop(sleep=2, color=''):
+def marquee_loop(sleep=.5, color=''):
     # print('random color is: {}'.format(color))
-    loops = 10
+    loops = 5
     for i in range(1, loops):
         if i < loops:
             print('marquee loop: {} of {}'.format(i, loops))
@@ -172,7 +172,7 @@ def marquee_loop(sleep=2, color=''):
 
 def marquee_loop_static(sleep=2, color=''):
     # print('random color is: {}'.format(color))
-    loops = 10
+    loops = 5
     for i in range(1, loops):
         if i < loops:
             print('static marquee loop: {} of {}'.format(i, loops))
@@ -192,8 +192,7 @@ def chase_loop(color=''):
     blank()
 
 # tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
-tricks = [chase_loop] # noqa
-# tricks = [chase_loop, marquee_loop, marquee_loop_static] # noqa
+tricks = [chase_loop, marquee_loop, marquee_loop_static] # noqa
 # colors = [dark_red, purp, pink]
 colors = [white, dark_red, purp, pink]
 while True:
