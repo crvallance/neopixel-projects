@@ -102,3 +102,6 @@ ENV/
 
 # vscode
 *.vscode
+
+# ignoring pipfiles for now
+*Pipfile
