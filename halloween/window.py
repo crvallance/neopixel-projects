@@ -53,6 +53,7 @@ def green_fader():
             pixels.show()
             j += inc
 
+
 '''
     for j in [10 - (x * .5) for x in range(0, 15, 3)]:
         print(j)
