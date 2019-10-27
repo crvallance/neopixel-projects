@@ -1,0 +1,16 @@
+** in 02 setup  **
+source setup.sh
+make
+config-pin P1_36 pruout
+export TARGET=neo4
+make
+sudo chmod 666 /dev/rpmsg_pru30
+echo 20 0xff 0 127 > /dev/rpmsg_pru30
+echo -1 > /dev/rpmsg_pru30
+
+-----
+sudo modprobe rpmsg_proto
+debian@beaglebone:~/PRUCookbook/docs/05blocks/code/module$ sudo insmod rpmsg_pru.ko
+source neo_setup.sh
+sudo chmod 666 /dev/rpmsg_pru30
+
