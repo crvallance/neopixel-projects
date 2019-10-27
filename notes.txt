@@ -14,3 +14,7 @@ debian@beaglebone:~/PRUCookbook/docs/05blocks/code/module$ sudo insmod rpmsg_pru
 source neo_setup.sh
 sudo chmod 666 /dev/rpmsg_pru30
 
+----
+orange: R:164.64062 G:38.14844 B:2.00781
+purple: R:36.14062 G:4.01562 B:51.19922
+black: R:6.02344 G:6.02344 B:6.02344
