@@ -21,9 +21,9 @@ off = (0, 0, 0)
 # white = (0x10, 0x10, 0x10)
 # Pixel info
 pixnum = 364
-r_window = range(1, 120 + 1)
-c_window = range(121, 244 + 1)
-l_window = range(245, 364 + 1)
+r_window = range(0, 119 + 1)
+c_window = range(120, 243 + 1)
+l_window = range(244, 363 + 1)
 
 fo = open("/dev/rpmsg_pru30", "w")
 
@@ -78,6 +78,63 @@ def simplechase(wait=0, color=()):
         time.sleep(wait)
 
 
+def window_chase(color=(), direction='l'):
+    if direction == 'l':
+        popindex = 0
+    elif direction == 'r':    
+        popindex = -1
+    center_cheat = [63, 62, 61, 60]
+    r_list = list(r_window)
+    c_list = list(c_window)
+    l_list = list(l_window)
+    for i, val in enumerate(c_window):
+        if i in center_cheat:
+            try:
+                pixel = [c_list.pop(popindex)]
+                paintPositions(pixel, color, push=True)
+            except IndexError as e:
+                print('Error %s' % e)
+                print('Cheat %d' % val)
+        if i < 60:
+            try:
+                pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
+                paintPositions(pixels, color, push=True)
+            except IndexError as e:
+                print('Error %s' % e)
+                print('Under 181 %d' % val)
+        if i > 63:
+            try:
+                pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
+                paintPositions(pixels, color, push=True)
+            except IndexError as e:
+                print('Error %s' % e)
+                print('Over 184 %d' % val)
+
+
+def popcorn(color):
+    paintSingleColor(off)
+    percent = 20
+    all_pixels = list(range(0, pixnum))
+    dim_white = (36.140625, 36.140625, 36.140625)
+    sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
+    while len(all_pixels) > int(pixnum * percent/100):
+        pixel = all_pixels.pop(random.randrange(len(all_pixels)))
+        time.sleep(random.choice(sleepz))
+        print(pixel)
+        paintPositions([pixel], dim_white, push=True)
+
+def strobe(color):
+    bright_white = (255, 255, 255)
+    paintSingleColor(off)
+    paintSingleColor(bright_white)
+    paintSingleColor(off)
+    paintSingleColor(bright_white)
+    paintSingleColor(off)
+    paintSingleColor(bright_white)
+    paintSingleColor(off)
+    paintSingleColor(bright_white)
+
+
 def marquee_loop(sleep=2, color=()):
     # print('random color is: {}'.format(color))
     loops = 10
@@ -98,11 +155,26 @@ def chase_loop(color=()):
             i += 1
     paintSingleColor(off)
 
+def window_chase_loop(color=()):
+    loops = 6
+    dirs = ['l', 'r']
+    loop_dir = random.choice(dirs)
+    for i in range(1, loops):
+        print(loop_dir)
+        random.shuffle(colors)
+        r_color=colors[0]
+        print(r_color)
+        if i < loops:
+            print('window chase loop: {} of {}'.format(i, loops))
+            window_chase(r_color, direction=loop_dir)
+            i += 1
+    paintSingleColor(off)
+
 # tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
 # tricks = [chase_loop, marquee_loop, marquee_loop_static] # noqa
-tricks = [chase_loop] # noqa
+tricks = [popcorn] # noqa
 # colors = [orange, purple]
-colors = [orange, purple]
+colors = [orange, purple, black]
 while True:
     try:
         random.choice(tricks)(color=random.choice(colors))
