@@ -4,11 +4,13 @@ import sys
 
 # Some static stuff
 # Colors
-orange = (164.64062, 38.14844, 2.00781)
+jen_orange = (164.64062, 38.14844, 2.00781)
 purple = (36.14062, 4.01562, 51.19922)
 black = (6.02344, 6.02344, 6.02344)
 off = (0, 0, 0)
-# red = 0x100000  # (0x10, 0, 0) also works
+pink = (200, 25, 31)
+orange = (245, 25, 0)
+# red = 0x100000  (0x10, 0, 0) also works
 # yellow = (0x10, 0x10, 0)
 # green = (0, 0x10, 0)
 # aqua = (0, 0x10, 0x10)
@@ -65,6 +67,28 @@ def marquee(wait, color=()):
     fo.flush()
     time.sleep(wait)
 
+
+def marquee_static(wait, color=()):
+    if not color:
+        color = (0, 0, 0x10)
+    evens = []
+    odds = []
+    for num in range(pixnum):
+        # Test if the number is even
+        if num % 2 == 0:
+            evens.append(num)
+        else:
+            odds.append(num)
+    paintPositions(evens, color)
+    paintPositions(odds, black)
+    fo.write("-1 0 0 0\n")
+    fo.flush()
+    time.sleep(wait)
+    paintPositions(evens, black)
+    paintPositions(odds, color)
+    fo.write("-1 0 0 0\n")
+    fo.flush()
+    time.sleep(wait)
 
 def simplechase(wait=0, color=()):
     paintSingleColor(off)
@@ -145,6 +169,16 @@ def marquee_loop(sleep=2, color=()):
             i += 1
     paintSingleColor(off)
 
+def marquee_static_loop(sleep=2, color=()):
+    # print('random color is: {}'.format(color))
+    loops = 10
+    for i in range(1, loops):
+        if i < loops:
+            print('marquee static loop: {} of {}'.format(i, loops))
+            marquee_static(sleep, color)
+            i += 1
+    paintSingleColor(off)
+
 def chase_loop(color=()):
     # print('random color is: {}'.format(color))
     loops = 4
@@ -172,9 +206,9 @@ def window_chase_loop(color=()):
 
 # tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
 # tricks = [chase_loop, marquee_loop, marquee_loop_static] # noqa
-tricks = [popcorn] # noqa
+tricks = [marquee_static_loop] # noqa
 # colors = [orange, purple]
-colors = [orange, purple, black]
+colors = [orange, purple]
 while True:
     try:
         random.choice(tricks)(color=random.choice(colors))
