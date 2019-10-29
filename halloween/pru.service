@@ -1,0 +1,10 @@
+[Unit]
+Description=Autostart Scripts
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /usr/local/bin/pru-setup/start.sh
+
+[Install]
+WantedBy=multi-user.target
