@@ -204,14 +204,19 @@ def window_chase_loop(color=()):
             i += 1
     paintSingleColor(off)
 
-# tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
-# tricks = [chase_loop, marquee_loop, marquee_loop_static] # noqa
-tricks = [marquee_static_loop] # noqa
-# colors = [orange, purple]
-colors = [orange, purple]
-while True:
-    try:
-        random.choice(tricks)(color=random.choice(colors))
-    except KeyboardInterrupt:
-        paintSingleColor(off)
-        sys.exit()
+def main():
+    # tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
+    # tricks = [chase_loop, marquee_loop, marquee_loop_static] # noqa
+    tricks = [marquee_static_loop, window_chase_loop, chase_loop, marquee_loop] # noqa
+    # colors = [orange, purple]
+    colors = [orange, purple, black]
+    while True:
+        try:
+            random.choice(tricks)(color=random.choice(colors))
+        except KeyboardInterrupt:
+            paintSingleColor(off)
+            sys.exit()
+
+
+if __name__ == "__main__":
+    main()
