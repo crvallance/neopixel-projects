@@ -13,7 +13,7 @@ def shutdown():
     try:
         #os.system('tmux send-keys -t lights:0.0 C-c')
         window.paintSingleColor((0, 0, 0))
-        #os.system('sudo /sbin/poweroff')
+        os.system('sudo /sbin/poweroff')
         return('Shutting Down! (Please unplug power supply')
     except Exception as e:
         return 'Error: ' + str(e)
