@@ -1,30 +1,60 @@
-from flask import Flask, request
+from flask import Flask
 import os
-from halloween import window
-
-# Open a file
-# fo = open("/dev/rpmsg_pru30", "w")
+import signal
+from subprocess import Popen, PIPE
+import tempfile
 
 app = Flask(__name__)
+script_root = '/home/debian/neopixel-projects/'
+python = '/usr/bin/python3'
+temp = tempfile.TemporaryFile(mode='w+')
 
-
-@app.route('/api/shutdown/', methods=['GET'])
-def shutdown():
+@app.route('/api/xmas/', methods=['GET'])
+def xmas():
     try:
-        #os.system('tmux send-keys -t lights:0.0 C-c')
-        window.paintSingleColor((0, 0, 0))
-        os.system('sudo /sbin/poweroff')
-        return('Shutting Down! (Please unplug power supply')
+        p = Popen([python, script_root+'christmas/window.py'], stdout=PIPE)
+        temp.seek(0)
+        temp.write(str(p.pid))
+        temp.truncate()
+        return('Starting XMAS')
+    except Exception as e:
+        return 'Error: ' + str(e)
+
+
+@app.route('/api/kill/', methods=['GET'])
+def kill():
+    try:
+        temp.seek(0)
+        pid = int(temp.read())
+        # pid = int(pid_b.decode())
+        os.kill(pid, signal.SIGKILL) #or signal.SIGKILL
+        # os.killpg(os.getpgid(pid), signal.SIGTERM)  
+        clear()
+        return('Killing last known proccess: {}'.format(str(pid)))
+    except Exception as e:
+        return 'Error: ' + str(e)
+
+
+@app.route('/api/clear/', methods=['GET'])
+def clear():
+    try:
+        p = Popen([python, script_root+'tools/window_clear.py'], stdout=PIPE)
+        return('Clearing LEDS')
     except Exception as e:
         return 'Error: ' + str(e)
 
 @app.route('/api/halloween/', methods=['GET'])
 def halloween():
     try:
-        window.main()
-        return('Running Halloween Script')
+        p = Popen([python, script_root+'halloween/window.py'], stdout=PIPE)
+        temp.seek(0)
+        temp.write(str(p.pid))
+        temp.truncate()
+        return('Starting Halloween')
     except Exception as e:
         return 'Error: ' + str(e)
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8081)
