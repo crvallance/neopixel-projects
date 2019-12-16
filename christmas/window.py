@@ -244,8 +244,8 @@ def window_chase_loop(color=()):
     paintSingleColor(off)
 
 
-tricks = [popcorn] # noqa
-#tricks = [dual_marquee_loop, popcorn, marquee_static_loop, window_chase_loop, chase_loop, marquee_loop] # noqa
+# tricks = [popcorn] # noqa
+tricks = [dual_marquee_loop, popcorn, marquee_static_loop, window_chase_loop, chase_loop, marquee_loop] # noqa
 colors = [jen_red, green]
 
     
