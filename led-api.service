@@ -1,0 +1,12 @@
+[Unit]
+Description=Autostart Scripts
+After=pru.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /home/debian/neopixel-projects/control-api.py
+
+[Install]
+WantedBy=multi-user.target
+
+
