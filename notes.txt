@@ -12,9 +12,27 @@ echo -1 > /dev/rpmsg_pru30
 sudo modprobe rpmsg_proto
 debian@beaglebone:~/PRUCookbook/docs/05blocks/code/module$ sudo insmod rpmsg_pru.ko
 source neo_setup.sh
+make
 sudo chmod 666 /dev/rpmsg_pru30
 
 ----
 orange: R:164.64062 G:38.14844 B:2.00781
 purple: R:36.14062 G:4.01562 B:51.19922
 black: R:6.02344 G:6.02344 B:6.02344
+
+----
+
+tmux new-session -d -s lights
+tmux send-keys -t lights 'python3 /home/debian/neopixel-projects/halloween/window.py' C-m
+tmux new-window -t lights
+tmux send-keys -t lights 'python3 /home/debian/neopixel-projects/tools/control-api.py' C-m
+
+
+tmux send-keys -t lights:0.0 C-c
+
+
+
+sudo -u debian /bin/bash -c "tmux new-session -d -s lights"
+sudo -u debian /bin/bash -c "tmux send-keys -t lights 'python3 /home/debian/neopixel-projects/halloween/window.py' C-m"
+sudo -u debian /bin/bash -c "tmux new-window -t lights"
+sudo -u debian /bin/bash -c "tmux send-keys -t lights 'python3 /home/debian/neopixel-projects/tools/control-api.py' C-m"
