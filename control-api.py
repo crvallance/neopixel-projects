@@ -54,7 +54,16 @@ def halloween():
     except Exception as e:
         return 'Error: ' + str(e)
 
-
+@app.route('/api/rainbow/', methods=['GET'])
+def rainbow():
+    try:
+        p = Popen([python, script_root+'los-muertos/rainbow.py'], stdout=PIPE)
+        temp.seek(0)
+        temp.write(str(p.pid))
+        temp.truncate()
+        return('Starting Rainbow')
+    except Exception as e:
+        return 'Error: ' + str(e)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8081)
