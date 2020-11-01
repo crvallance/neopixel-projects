@@ -1,9 +1,6 @@
-import time
-import random
-import sys
-
 fo = open("/dev/rpmsg_pru30", "w")
 pixnum = 364
+
 
 def wheel(pos):
     # Input a value 0 to 255 to get a color value.
@@ -34,5 +31,6 @@ def rainbow_cycle(wait):
             fo.write(setpix)
             fo.flush()
         fo.write("-1 0 0 0\n")
+
 
 rainbow_cycle(1)
