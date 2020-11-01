@@ -32,5 +32,5 @@ def rainbow_cycle(wait):
             fo.flush()
         fo.write("-1 0 0 0\n")
 
-
-rainbow_cycle(1)
+while True:
+    rainbow_cycle(1)
