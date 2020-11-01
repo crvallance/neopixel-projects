@@ -3,7 +3,6 @@
 import board
 import neopixel
 import time
-import random
 import adafruit_fancyled.adafruit_fancyled as fancy
 
 pixpin = board.D5
@@ -35,7 +34,7 @@ def blank():
 def marquee(wait, color=''):
     if not color:
         color = (0, 0, 0x10)
-    black = (0, 0, 0)
+    black = (0, 0, 0)  # noqa: F841
     evens = []
     odds = []
     for num in range(pixnum):

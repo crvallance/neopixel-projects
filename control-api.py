@@ -39,7 +39,7 @@ def kill():
 @app.route('/api/clear/', methods=['GET'])
 def clear():
     try:
-        p = Popen([python, script_root + 'tools/window_clear.py'], stdout=PIPE) # noqa: F841
+        p = Popen([python, script_root + 'tools/window_clear.py'], stdout=PIPE)  # noqa: F841
         return('Clearing LEDS')
     except Exception as e:
         return 'Error: ' + str(e)

@@ -10,9 +10,9 @@ black = (6.02344, 6.02344, 6.02344)
 off = (0, 0, 0)
 pink = (200, 25, 31)
 orange = (245, 25, 0)
-jen_red = (74.2890625,0.0,0.0)
-#red = (0x10, 0, 0)
-#red = 0x100000  (0x10, 0, 0) also works
+jen_red = (74.2890625, 0.0, 0.0)
+# red = (0x10, 0, 0)
+# red = 0x100000  (0x10, 0, 0) also works
 # yellow = (0x10, 0x10, 0)
 green = (0, 0x10, 0)
 # aqua = (0, 0x10, 0x10)
@@ -31,6 +31,7 @@ l_window = range(244, 363 + 1)
 
 fo = open("/dev/rpmsg_pru30", "w")
 
+
 def paintSingleColor(color):
     r, g, b = color
     for i in range(0, 364):
@@ -38,22 +39,25 @@ def paintSingleColor(color):
         fo.flush()
     fo.write("-1 0 0 0\n")
 
+
 def paintPositions(pixel_list, color_tup, push=False):
     r, g, b = color_tup
     for item in pixel_list:
         fo.write("%d %d %d %d\n" % (item, r, g, b))
         fo.flush()
-    if push == True:
+    # if push == True:
+    if push:
         fo.write("-1 0 0 0\n")
         fo.flush()
+
 
 def dual_marquee(wait, color=()):
     evens = []
     odds = []
-    if color == (74.2890625,0.0,0.0):
+    if color == (74.2890625, 0.0, 0.0):
         color2 = (0, 0x10, 0)
     else:
-        color2 = (74.2890625,0.0,0.0)
+        color2 = (74.2890625, 0.0, 0.0)
     for num in range(pixnum):
         # Test if the number is even
         if num % 2 == 0:
@@ -70,7 +74,6 @@ def dual_marquee(wait, color=()):
     fo.write("-1 0 0 0\n")
     fo.flush()
     time.sleep(wait)
-
 
 
 def marquee(wait, color=()):
@@ -118,6 +121,7 @@ def marquee_static(wait, color=()):
     fo.flush()
     time.sleep(wait)
 
+
 def simplechase(wait=0, color=()):
     paintSingleColor(off)
     if not color:
@@ -133,7 +137,7 @@ def simplechase(wait=0, color=()):
 def window_chase(color=(), direction='l'):
     if direction == 'l':
         popindex = 0
-    elif direction == 'r':    
+    elif direction == 'r':
         popindex = -1
     center_cheat = [63, 62, 61, 60]
     r_list = list(r_window)
@@ -169,11 +173,12 @@ def popcorn(color):
     all_pixels = list(range(0, pixnum))
     dim_white = (36.140625, 36.140625, 36.140625)
     sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
-    while len(all_pixels) > int(pixnum * percent/100):
+    while len(all_pixels) > int(pixnum * percent / 100):
         pixel = all_pixels.pop(random.randrange(len(all_pixels)))
         time.sleep(random.choice(sleepz))
         print(pixel)
         paintPositions([pixel], dim_white, push=True)
+
 
 def strobe(color):
     bright_white = (255, 255, 255)
@@ -208,6 +213,7 @@ def marquee_loop(sleep=2, color=()):
             i += 1
     paintSingleColor(off)
 
+
 def marquee_static_loop(sleep=2, color=()):
     # print('random color is: {}'.format(color))
     loops = 10
@@ -217,6 +223,7 @@ def marquee_static_loop(sleep=2, color=()):
             marquee_static(sleep, color)
             i += 1
     paintSingleColor(off)
+
 
 def chase_loop(color=()):
     # print('random color is: {}'.format(color))
@@ -228,6 +235,7 @@ def chase_loop(color=()):
             i += 1
     paintSingleColor(off)
 
+
 def window_chase_loop(color=()):
     loops = 6
     dirs = ['l', 'r']
@@ -235,7 +243,7 @@ def window_chase_loop(color=()):
     for i in range(1, loops):
         print(loop_dir)
         random.shuffle(colors)
-        r_color=colors[0]
+        r_color = colors[0]
         print(r_color)
         if i < loops:
             print('window chase loop: {} of {}'.format(i, loops))
@@ -248,7 +256,7 @@ def window_chase_loop(color=()):
 tricks = [dual_marquee_loop, popcorn, marquee_static_loop, window_chase_loop, chase_loop, marquee_loop] # noqa
 colors = [jen_red, green]
 
-    
+
 def main():
     while True:
         try:

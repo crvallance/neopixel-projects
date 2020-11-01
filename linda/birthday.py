@@ -173,6 +173,7 @@ def circle_loop():
             simplecircle(.05)
             i += 1
 
+
 tricks = [shifter_loop, backandforth_loop, fill_the_glass_loop, circle_loop]
 
 while True:

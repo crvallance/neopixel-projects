@@ -12,9 +12,9 @@ pixels = neopixel.NeoPixel(pixpin, pixnum, brightness=1, auto_write=False)
 pixels.fill((0, 0, 0))
 # pixels.show()
 # white = (0x10, 0x10, 0x10)
-white = (255,255,255)
-pink = (255,20,147)
-base_red = fancy.CRGB(220,20,60)  # Orange
+white = (255, 255, 255)
+pink = (255, 20, 147)
+base_red = fancy.CRGB(220, 20, 60)  # Orange
 red_adj_1 = fancy.gamma_adjust(base_red, gamma_value=4.5)
 dark_red = red_adj_1.pack()
 base_purple = fancy.CRGB(0x10, 0, 0x10)
@@ -55,6 +55,7 @@ def green_fader():
                 pixels[i] = green
             pixels.show()
             j += inc
+
 
 '''
     for j in [10 - (x * .5) for x in range(0, 15, 3)]:
