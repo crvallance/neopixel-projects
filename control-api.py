@@ -10,6 +10,15 @@ python = '/usr/bin/python3'
 temp = tempfile.TemporaryFile(mode='w+')
 
 
+@app.route('/', methods=['GET'])
+def list_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        # routes.append('%s' % rule)
+        routes.append('<a href="{}">{}</a>)'.format(rule, rule))
+    return str(routes)
+
+
 @app.route('/api/xmas/', methods=['GET'])
 def xmas():
     try:
