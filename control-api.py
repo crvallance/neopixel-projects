@@ -31,6 +31,30 @@ def xmas():
         return 'Error: ' + str(e)
 
 
+@app.route('/api/chanukah/', methods=['GET'])
+def chanukah():
+    try:
+        p = Popen([python, script_root + 'chanukah/window.py'], stdout=PIPE)
+        temp.seek(0)
+        temp.write(str(p.pid))
+        temp.truncate()
+        return('Starting Chanukah')
+    except Exception as e:
+        return 'Error: ' + str(e)
+
+
+@app.route('/api/kwanzaa/', methods=['GET'])
+def kwanzaa():
+    try:
+        p = Popen([python, script_root + 'kwanzaa/window.py'], stdout=PIPE)
+        temp.seek(0)
+        temp.write(str(p.pid))
+        temp.truncate()
+        return('Starting Kwanzaa')
+    except Exception as e:
+        return 'Error: ' + str(e)
+
+
 @app.route('/api/kill/', methods=['GET'])
 def kill():
     try:
@@ -77,6 +101,21 @@ def rainbow():
     except Exception as e:
         return 'Error: ' + str(e)
 
+
+@app.route('/api/pru-rainbow/', methods=['GET'])
+def pru_rainbow():
+    try:
+        p = Popen([python, script_root + 'los-muertos/pru_rainbow.py'], stdout=PIPE)
+        temp.seek(0)
+        temp.write(str(p.pid))
+        temp.truncate()
+        return('Starting Rainbow')
+    except Exception as e:
+        return 'Error: ' + str(e)
+
+@app.route('/api/powerdown', methods=['GET'])
+def shutdown():
+    p = Popen(['/sbin/poweroff'], stdout=PIPE)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8081)
