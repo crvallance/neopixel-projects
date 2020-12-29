@@ -61,27 +61,28 @@ def lights_by_day():
     now = datetime.now(tz=home_tz)
     paintSingleColor(off)
     if now.month == 12:
-        if now.day == 26:
-            paintPositions(day_one, red, push=True)
         if now.day == 27:
+            paintPositions(day_one, red, push=True)
+        if now.day == 28:
             paintPositions(day_one, red)
             paintPositions(day_two, red, push=True)
-        if now.day == 28:
+        if now.day == 29:
             paintPositions(day_one, red)
             paintPositions(day_two, red)
             paintPositions(day_three, red, push=True)
-        if now.day == 29:
+        if now.day == 30:
             paintPositions(day_one, red)
             paintPositions(day_two, red)
             paintPositions(day_three, red)
             paintPositions(day_four, green, push=True)
-        if now.day == 30:
+        if now.day == 31:
             paintPositions(day_one, red)
             paintPositions(day_two, red)
             paintPositions(day_three, red)
             paintPositions(day_four, green)
             paintPositions(day_five, green, push=True)
-        if now.day == 31:
+    elif now.month == 1: 
+        if now.day == 1:
             paintPositions(day_one, red)
             paintPositions(day_two, red)
             paintPositions(day_three, red)
@@ -94,6 +95,7 @@ def lights_by_day():
 
 def main():
     lights_by_day()
+    time.sleep()
 
 
 if __name__ == "__main__":
