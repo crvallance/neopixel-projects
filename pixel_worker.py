@@ -3,6 +3,46 @@ import random
 
 
 class Pattern(object):
+    def __init__(self, color: tuple, pixel_location: int, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365, push: bool = False):
+        self.__pru = pru
+        self.fo = open(self.__pru, 'w')
+        self.color = color
+        self.pixel_location = pixel_location
+        self.push = push
+        self.pixel_count = pixel_count
+
+    def write(self):
+        r, g, b = self.color
+        self.fo.write(f'{self.pixel_location} {r} {g} {b}\n')
+        self.fo.flush()
+        if self.push:
+            self.fo.write('-1 0 0 0\n')
+            self.fo.flush()
+
+    def paint_all_windows(self):
+        self.push = True
+        for i in range(0, self.pixel_count):
+            self.pixel_location = i
+            self.write()
+
+
+class Strobe(Pattern):
+    def __init__(self):
+        self.__off = (0, 0, 0)
+        self.__bright_white = (255, 255, 255)
+        super().__init__(color=self.__bright_white, pixel_location=50)
+
+    def run(self):
+        self.color = self.__off
+        self.paint_all_windows()
+        self.color = self.__bright_white
+        self.paint_all_windows()
+        self.color = self.__off
+        self.paint_all_windows()
+
+
+'''
+class ALLPattern(object):
     def __init__(self, name: str, wait: int = 0, pru: str = '/dev/rpmsg_pru30'):
         self.__name: str = name
         self.__wait: int = wait
@@ -117,16 +157,7 @@ class Pattern(object):
             print(pixel)
             self.paint_positions([pixel], dim_white, push=True)
 
-    def strobe(self, color: tuple):
-        bright_white = (255, 255, 255)
-        self.paint_single_color(self.__off)
-        self.paint_single_color(bright_white)
-        self.paint_single_color(self.__off)
-        self.paint_single_color(bright_white)
-        self.paint_single_color(self.__off)
-        self.paint_single_color(bright_white)
-        self.paint_single_color(self.__off)
-        self.paint_single_color(bright_white)
+
 
 
 class LightRunner(object):
@@ -142,3 +173,13 @@ class Color(object):
         self.self.off = (0, 0, 0)
         self.pink = (200, 25, 31)
         self.orange = (245, 25, 0)
+'''
+
+
+def main():
+    meh = Strobe()
+    meh.run()
+
+
+if __name__ == '__main__':
+    main()
