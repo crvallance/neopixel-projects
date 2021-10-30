@@ -83,17 +83,17 @@ class SimpleChase(Pattern):
         self.__color = color
         super().__init__()
 
-    def run(self, color, wait: int = 1):
-        self.paint_all_windows(Colors.off)
+    def run(self, color, wait: int = .0005):
         self.push = True
         for i in range(0, self.pixel_count):
-            self.write(color, pixel_location=i)
-            # self.paint_positions([i], color, push=True)
+            self.write(color=color, pixel_location=i)
             time.sleep(wait)
         for i in range(0, self.pixel_count):
-            self.write(pixel_location=i, color=Color.off)
-            #self.paint_positions([i], self.__off, push=True)
-            time.sleep(wait)
+            self.write(pixel_location=i, color=Colors.off)
+    
+    def loop(self, color, loop_count: int = 5, wait: int = .0005):
+        for loop in range(0, loop_count):
+            self.run(color, wait)
 
 
 @dataclass
@@ -118,11 +118,13 @@ class Colors:
 
 
 def main():
-    meh = Strobe()
-    meh.loop(color=Colors.blue2)
+    # meh = Strobe()
+    # meh.loop(color=Colors.blue2)
     # for loop in range(0, meh.loops):
         # meh.run()
-    # hi = SimpleChase()
+    hi = SimpleChase()
+    # hi.run(color=Colors.halloween_orange)
+    hi.loop(color=Colors.halloween_orange)
     # hi = Marquee(Colors.blue2)
     # hi = Strobe()
     # for loop in range(0, hi.loops):
