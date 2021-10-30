@@ -1,13 +1,12 @@
 import time
 import random
+from dataclasses import dataclass
 
 
 class Pattern(object):
     def __init__(self, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365, push: bool = False):
         self.__pru = pru
         self.fo = open(self.__pru, 'w')
-        # self.color = color
-        # self.pixel_location = pixel_location
         self.push = push
         self.pixel_count = pixel_count
 
@@ -27,17 +26,26 @@ class Pattern(object):
 
 
 class Strobe(Pattern):
-    def __init__(self):
-        self.__off = (0, 0, 0)
-        self.__bright_white = (255, 255, 255)
+    def __init__(self, color: tuple = (255, 255, 255)):
+        self.__color = color
         super().__init__()
 
     def run(self):
-        self.paint_all_windows(self.__off)
-        self.paint_all_windows(self.__bright_white)
-        self.paint_all_windows(self.__off)
-        self.paint_all_windows(self.__bright_white)
-        self.paint_all_windows(self.__off)
+        self.paint_all_windows(Colors.off)
+        self.paint_all_windows(self.__color)
+        self.paint_all_windows(Colors.off)
+        self.paint_all_windows(self.__color)
+        self.paint_all_windows(Colors.off)
+
+
+@dataclass
+class Colors:
+    off: tuple = (0, 0, 0)
+    halloween_orange: tuple = (164.64062, 38.14844, 2.00781)
+    purple: tuple = (36.14062, 4.01562, 51.19922)
+    black: tuple = (6.02344, 6.02344, 6.02344)
+    pink: tuple = (200, 25, 31)
+    orange: tuple = (245, 25, 0)
 
 
 '''
@@ -163,20 +171,11 @@ class LightRunner(object):
     def __init__(self):
         self.__patterns = []
 
-
-class Color(object):
-    def __init__(self):
-        self.halloween_orange = (164.64062, 38.14844, 2.00781)
-        self.purple = (36.14062, 4.01562, 51.19922)
-        self.black = (6.02344, 6.02344, 6.02344)
-        self.self.off = (0, 0, 0)
-        self.pink = (200, 25, 31)
-        self.orange = (245, 25, 0)
 '''
 
 
 def main():
-    meh = Strobe()
+    meh = Strobe(Colors.purple)
     meh.run()
 
 
