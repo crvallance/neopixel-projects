@@ -10,24 +10,39 @@ class Pattern(object):
         self.push = push
         self.pixel_count = pixel_count
 
+    def commit(self):
+        self.fo.write('-1 0 0 0\n')
+        self.fo.flush()
+
     def write(self, pixel_location: int, color: tuple):
         r, g, b = color
         self.fo.write(f'{pixel_location} {r} {g} {b}\n')
         self.fo.flush()
         if self.push:
-            self.fo.write('-1 0 0 0\n')
-            self.fo.flush()
+            # self.fo.write('-1 0 0 0\n')
+            # self.fo.flush()
+            self.commit()
 
     def paint_all_windows(self, color):
         for pixel in range(0, self.pixel_count):
             self.write(pixel_location=pixel, color=color)
-        self.fo.write('-1 0 0 0\n')
-        self.fo.flush()
+        # self.fo.write('-1 0 0 0\n')
+        # self.fo.flush()
+        self.commit()
+    
+    def paint_pixel_list(self, color, pixels: list, push: bool = False):
+        for pixel in pixels:
+            self.write(pixel_location=pixel, color=color)
+        if push:
+            # self.fo.write('-1 0 0 0\n')
+            # self.fo.flush()
+            self.commit()
 
 
 class Strobe(Pattern):
-    def __init__(self, color: tuple = (255, 255, 255)):
+    def __init__(self, color: tuple = (255, 255, 255), loops: int = 20):
         self.__color = color
+        self.loops = loops
         super().__init__()
 
     def run(self):
@@ -37,15 +52,66 @@ class Strobe(Pattern):
         self.paint_all_windows(self.__color)
         self.paint_all_windows(Colors.off)
 
+    def loops(self) -> int:
+        return(self.loops)
+
+
+class Marquee(Pattern):
+    def __init__(self, color: tuple = (255, 255, 255)):
+        self.__color = color
+        super().__init__()
+
+    def run(self, color, wait: int = 1):
+        evens = []
+        odds = []
+        for num in range(self.pixel_count):
+            if num % 2 == 0:
+                evens.append(num)
+            else:
+                odds.append(num)
+        self.paint_pixel_list(color=color, pixels=evens)
+        self.paint_pixel_list(color=Colors.off, pixels=odds)
+        self.commit()
+        time.sleep(wait)
+        self.paint_pixel_list(color=color, pixels=odds)
+        self.paint_pixel_list(color=Colors.off, pixels=evens)
+        self.commit()
+        time.sleep(wait)
+
+    def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 1):
+        for loop in range(0, loop_count):
+            self.run(color, wait)
+
 
 @dataclass
 class Colors:
     off: tuple = (0, 0, 0)
-    halloween_orange: tuple = (164.64062, 38.14844, 2.00781)
-    purple: tuple = (36.14062, 4.01562, 51.19922)
+    # aqua: tuple = (0, 0x10, 0x10)
     black: tuple = (6.02344, 6.02344, 6.02344)
-    pink: tuple = (200, 25, 31)
+    # blue1: tuple = (0, 0, 0x10)
+    blue2: tuple = (0, 0, 255)
+    # green: tuple = (0, 0x10, 0)
+    halloween_orange: tuple = (164.64062, 38.14844, 2.00781)
+    jen_orange: tuple = (164.64062, 38.14844, 2.00781)
+    jen_red: tuple = (74.2890625, 0.0, 0.0)
     orange: tuple = (245, 25, 0)
+    pink: tuple = (200, 25, 31)
+    # purple1: tuple = (0x10, 0, 0x10)
+    purple2: tuple = (36.14062, 4.01562, 51.19922)
+    # red1: tuple = (0x10, 0, 0)
+    # red2: tuple = 0x100000  (0x10, 0, 0)
+    red3: tuple = (74.2890625, 0.0, 0.0)
+    # yellow: tuple = (0x10, 0x10, 0)
+
+
+def main():
+    # meh = Strobe(Colors.blue2)
+    # for loop in range(0, meh.loops):
+        # meh.run()
+    hi = Marquee()
+    # for loop in range(0, hi.loops):
+    #     hi.run(color=Colors.halloween_orange)
+    hi.loop(color=Colors.halloween_orange)
 
 
 '''
@@ -172,12 +238,6 @@ class LightRunner(object):
         self.__patterns = []
 
 '''
-
-
-def main():
-    meh = Strobe(Colors.purple)
-    meh.run()
-
 
 if __name__ == '__main__':
     main()
