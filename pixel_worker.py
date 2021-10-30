@@ -19,11 +19,13 @@ class Pattern(object):
             self.fo.write('-1 0 0 0\n')
             self.fo.flush()
 
-    def paint_all_windows(self):
-        self.push = True
+    def paint_all_windows(self, color):
         for i in range(0, self.pixel_count):
             self.pixel_location = i
+            self.color = color
             self.write()
+        self.fo.write('-1 0 0 0\n')
+        self.fo.flush()
 
 
 class Strobe(Pattern):
@@ -33,12 +35,11 @@ class Strobe(Pattern):
         super().__init__(color=self.__bright_white, pixel_location=50)
 
     def run(self):
-        self.color = self.__off
-        self.paint_all_windows()
-        self.color = self.__bright_white
-        self.paint_all_windows()
-        self.color = self.__off
-        self.paint_all_windows()
+        self.paint_all_windows(self.__off)
+        self.paint_all_windows(self.__bright_white)
+        self.paint_all_windows(self.__off)
+        self.paint_all_windows(self.__bright_white)
+        self.paint_all_windows(self.__off)
 
 
 '''
