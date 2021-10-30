@@ -3,27 +3,25 @@ import random
 
 
 class Pattern(object):
-    def __init__(self, color: tuple, pixel_location: int, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365, push: bool = False):
+    def __init__(self, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365, push: bool = False):
         self.__pru = pru
         self.fo = open(self.__pru, 'w')
-        self.color = color
-        self.pixel_location = pixel_location
+        # self.color = color
+        # self.pixel_location = pixel_location
         self.push = push
         self.pixel_count = pixel_count
 
-    def write(self):
-        r, g, b = self.color
-        self.fo.write(f'{self.pixel_location} {r} {g} {b}\n')
+    def write(self, pixel_location: int, color: tuple):
+        r, g, b = color
+        self.fo.write(f'{pixel_location} {r} {g} {b}\n')
         self.fo.flush()
         if self.push:
             self.fo.write('-1 0 0 0\n')
             self.fo.flush()
 
     def paint_all_windows(self, color):
-        for i in range(0, self.pixel_count):
-            self.pixel_location = i
-            self.color = color
-            self.write()
+        for pixel in range(0, self.pixel_count):
+            self.write(pixel_location=pixel, color=color)
         self.fo.write('-1 0 0 0\n')
         self.fo.flush()
 
@@ -32,7 +30,7 @@ class Strobe(Pattern):
     def __init__(self):
         self.__off = (0, 0, 0)
         self.__bright_white = (255, 255, 255)
-        super().__init__(color=self.__bright_white, pixel_location=50)
+        super().__init__()
 
     def run(self):
         self.paint_all_windows(self.__off)
