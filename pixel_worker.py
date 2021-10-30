@@ -29,7 +29,7 @@ class Pattern(object):
         # self.fo.write('-1 0 0 0\n')
         # self.fo.flush()
         self.commit()
-    
+  
     def paint_pixel_list(self, color, pixels: list, push: bool = False):
         for pixel in pixels:
             self.write(pixel_location=pixel, color=color)
@@ -40,20 +40,20 @@ class Pattern(object):
 
 
 class Strobe(Pattern):
-    def __init__(self, color: tuple = (255, 255, 255), loops: int = 20):
+    def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
-        self.loops = loops
         super().__init__()
 
-    def run(self):
+    def run(self, color, wait: int = .125):
         self.paint_all_windows(Colors.off)
         self.paint_all_windows(self.__color)
         self.paint_all_windows(Colors.off)
         self.paint_all_windows(self.__color)
         self.paint_all_windows(Colors.off)
 
-    def loops(self) -> int:
-        return(self.loops)
+    def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 1):
+        for loop in range(0, loop_count):
+            self.run(color, wait)
 
 
 class Marquee(Pattern):
@@ -108,7 +108,8 @@ def main():
     # meh = Strobe(Colors.blue2)
     # for loop in range(0, meh.loops):
         # meh.run()
-    hi = Marquee()
+    # hi = Marquee()
+    hi = Strobe()
     # for loop in range(0, hi.loops):
     #     hi.run(color=Colors.halloween_orange)
     hi.loop(color=Colors.halloween_orange)
