@@ -9,6 +9,9 @@ class Pattern(object):
         self.fo = open(self.__pru, 'w')
         self.push = push
         self.pixel_count = pixel_count
+        self.right_window = range(0, 119 + 1)
+        self.center_window = range(120, 243 + 1)
+        self.left_window = range(244, 363 + 1)
 
     def commit(self):
         self.fo.write('-1 0 0 0\n')
@@ -90,10 +93,49 @@ class SimpleChase(Pattern):
             time.sleep(wait)
         for i in range(0, self.pixel_count):
             self.write(pixel_location=i, color=Colors.off)
-    
+
     def loop(self, color, loop_count: int = 5, wait: int = .0005):
         for loop in range(0, loop_count):
             self.run(color, wait)
+
+
+class WindowChase(Pattern):
+    def __init__(self, color: tuple = (255, 255, 255), direction='l'):
+        self.__color = color
+        self.__direction = direction
+        super().__init__()
+
+    def run(self, color: tuple):
+        if self.__direction == 'l':
+            popindex = 0
+        elif self.__direction == 'r':
+            popindex = -1
+        center_cheat = [63, 62, 61, 60]
+        r_list = list(self.right_window)
+        c_list = list(self.center_window)
+        l_list = list(self.left_window)
+        for i, val in enumerate(self.center_window):
+            if i in center_cheat:
+                try:
+                    pixels = [c_list.pop(popindex)]
+                    self.paint_pixel_list(pixels=pixels, color=color, push=True)
+                except IndexError as e:
+                    print('Error %s' % e)
+                    print('Cheat %d' % val)
+            if i < 60:
+                try:
+                    pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
+                    self.paint_pixel_list(pixels=pixels, color=color, push=True)
+                except IndexError as e:
+                    print('Error %s' % e)
+                    print('Under 181 %d' % val)
+            if i > 63:
+                try:
+                    pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
+                    self.paint_pixel_list(pixels=pixels, color=color, push=True)
+                except IndexError as e:
+                    print('Error %s' % e)
+                    print('Over 184 %d' % val)
 
 
 @dataclass
@@ -120,11 +162,10 @@ class Colors:
 def main():
     # meh = Strobe()
     # meh.loop(color=Colors.blue2)
-    # for loop in range(0, meh.loops):
-        # meh.run()
-    hi = SimpleChase()
-    # hi.run(color=Colors.halloween_orange)
-    hi.loop(color=Colors.halloween_orange)
+    hi = WindowChase(direction='r')
+    hi.run(color=Colors.halloween_orange)
+    hi.run(color=Colors.off)
+    # hi.run(color=Colors.hal)
     # hi = Marquee(Colors.blue2)
     # hi = Strobe()
     # for loop in range(0, hi.loops):
@@ -156,49 +197,6 @@ class ALLPattern(object):
         self.__colors.append(color)
         return self
 
-
-    def simple_chase(self, color: tuple):
-        self.paint_single_color(self.__off)
-        if not color:
-            color = (0, 0, 0x10)
-        for i in range(self.pixel_count):
-            self.paint_positions([i], color, push=True)
-            time.sleep(self.wait)
-        for i in range(self.pixel_count):
-            self.paint_positions([i], self.__off, push=True)
-            time.sleep(self.wait)
-
-    def window_chase(self, color: tuple, direction='l'):
-        if direction == 'l':
-            popindex = 0
-        elif direction == 'r':
-            popindex = -1
-        center_cheat = [63, 62, 61, 60]
-        r_list = list(self.right_window)
-        c_list = list(self.center_window)
-        l_list = list(self.left_window)
-        for i, val in enumerate(self.center_window):
-            if i in center_cheat:
-                try:
-                    pixel = [c_list.pop(popindex)]
-                    self.paint_positions(pixel, color, push=True)
-                except IndexError as e:
-                    print('Error %s' % e)
-                    print('Cheat %d' % val)
-            if i < 60:
-                try:
-                    pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                    self.paint_positions(pixels, color, push=True)
-                except IndexError as e:
-                    print('Error %s' % e)
-                    print('Under 181 %d' % val)
-            if i > 63:
-                try:
-                    pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                    self.paint_positions(pixels, color, push=True)
-                except IndexError as e:
-                    print('Error %s' % e)
-                    print('Over 184 %d' % val)
 
     def popcorn(self, color: tuple):
         self.paint_single_color(self.__off)
