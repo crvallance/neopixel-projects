@@ -137,6 +137,23 @@ class WindowChase(Pattern):
                     print('Error %s' % e)
                     print('Over 184 %d' % val)
 
+class Popcorn(Pattern):
+    def __init__(self, color: tuple = (255, 255, 255)):
+        self.__color = color
+        super().__init__()
+
+    def run(self, color: tuple = (36.140625, 36.140625, 36.140625)):
+        self.paint_all_windows(Colors.off)
+        percent = 20
+        all_pixels = list(range(0, self.pixel_count))
+        sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
+        while len(all_pixels) > int(self.pixel_count * percent / 100):
+            pixel = all_pixels.pop(random.randrange(len(all_pixels)))
+            time.sleep(random.choice(sleepz))
+            self.paint_pixel_list(pixels=[pixel], color=color, push=True)
+
+
+
 
 @dataclass
 class Colors:
@@ -162,9 +179,11 @@ class Colors:
 def main():
     # meh = Strobe()
     # meh.loop(color=Colors.blue2)
-    hi = WindowChase(direction='r')
-    hi.run(color=Colors.halloween_orange)
-    hi.run(color=Colors.off)
+    # hi = Popcorn()
+    # hi.run(color=Colors.halloween_orange)
+    clear = Pattern()
+    clear.paint_all_windows(color=Colors.off)
+    # hi.run(color=Colors.off)
     # hi.run(color=Colors.hal)
     # hi = Marquee(Colors.blue2)
     # hi = Strobe()
@@ -196,22 +215,6 @@ class ALLPattern(object):
     def with_color(self, color: tuple):
         self.__colors.append(color)
         return self
-
-
-    def popcorn(self, color: tuple):
-        self.paint_single_color(self.__off)
-        percent = 20
-        all_pixels = list(range(0, self.pixel_count))
-        dim_white = (36.140625, 36.140625, 36.140625)
-        sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
-        while len(all_pixels) > int(self.pixel_count * percent / 100):
-            pixel = all_pixels.pop(random.randrange(len(all_pixels)))
-            time.sleep(random.choice(sleepz))
-            print(pixel)
-            self.paint_positions([pixel], dim_white, push=True)
-
-
-
 
 class LightRunner(object):
     def __init__(self):
