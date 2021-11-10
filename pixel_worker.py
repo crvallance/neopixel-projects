@@ -13,6 +13,9 @@ class Pattern(object):
         self.center_window = range(120, 243 + 1)
         self.left_window = range(244, 363 + 1)
 
+    def with_pru(self, pru):
+        self.__pru = pru
+
     def commit(self):
         self.fo.write('-1 0 0 0\n')
         self.fo.flush()
