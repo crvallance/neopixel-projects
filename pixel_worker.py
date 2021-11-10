@@ -3,12 +3,19 @@ import random
 from dataclasses import dataclass
 
 
-class Pattern(object):
-    def __init__(self, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365, push: bool = False):
+class LightController(object):
+    def __init__(self, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365):
         self.__pru = pru
         self.fo = open(self.__pru, 'w')
-        self.push = push
         self.pixel_count = pixel_count
+
+    def run(self, scape):
+        scape().with_pru(self.__pru).run()
+
+
+class Pattern(object):
+    def __init__(self, push: bool = False):
+        self.push = push
         self.right_window = range(0, 119 + 1)
         self.center_window = range(120, 243 + 1)
         self.left_window = range(244, 363 + 1)
@@ -140,6 +147,7 @@ class WindowChase(Pattern):
                     print('Error %s' % e)
                     print('Over 184 %d' % val)
 
+
 class Popcorn(Pattern):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
@@ -154,8 +162,6 @@ class Popcorn(Pattern):
             pixel = all_pixels.pop(random.randrange(len(all_pixels)))
             time.sleep(random.choice(sleepz))
             self.paint_pixel_list(pixels=[pixel], color=color, push=True)
-
-
 
 
 @dataclass
@@ -180,12 +186,14 @@ class Colors:
 
 
 def main():
+    tryme = LightController()
+    tryme.run(Strobe)
     # meh = Strobe()
     # meh.loop(color=Colors.blue2)
     # hi = Popcorn()
     # hi.run(color=Colors.halloween_orange)
-    clear = Pattern()
-    clear.paint_all_windows(color=Colors.off)
+    # clear = Pattern()
+    # clear.paint_all_windows(color=Colors.off)
     # hi.run(color=Colors.off)
     # hi.run(color=Colors.hal)
     # hi = Marquee(Colors.blue2)
@@ -194,36 +202,6 @@ def main():
     #     hi.run(color=Colors.halloween_orange)
     # hi.loop(color=Colors.blue1)
 
-
-'''
-class ALLPattern(object):
-    def __init__(self, name: str, wait: int = 0, pru: str = '/dev/rpmsg_pru30'):
-        self.__name: str = name
-        self.__wait: int = wait
-        self.__colors: list = []
-        self.__off = (0, 0, 0)
-        self.pixel_count: int = 364
-        self.right_window = range(0, 120)
-        self.center_window = range(120, 244)
-        self.left_window = range(244, 364)
-        self.all_windows = range(0, 364)
-        self.fo = open(self.pru, 'w')
-
-    def name(self):
-        return self.__name
-
-    def wait(self):
-        return self.__wait
-
-    def with_color(self, color: tuple):
-        self.__colors.append(color)
-        return self
-
-class LightRunner(object):
-    def __init__(self):
-        self.__patterns = []
-
-'''
 
 if __name__ == '__main__':
     main()
