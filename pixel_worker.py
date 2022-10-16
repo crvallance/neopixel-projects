@@ -9,8 +9,26 @@ class LightController(object):
         self.fo = open(self.__pru, 'w')
         self.pixel_count = pixel_count
 
-    def run(self, scape):
-        scape().with_pru(self.__pru).run()
+    def run(self):
+        NewStrobe().loop()
+
+
+class NewStrobe(Pattern):
+    def __init__(self, color: tuple = (255, 255, 255)):
+        self.__color = color
+        super().__init__()
+
+    def run(self, color):
+        self.paint_all_windows(Colors.off)
+        self.paint_all_windows(self.__color)
+        self.paint_all_windows(Colors.off)
+        self.paint_all_windows(self.__color)
+        self.paint_all_windows(Colors.off)
+
+    def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 0):
+        for loop in range(0, loop_count):
+            self.run(color)
+            time.sleep(wait)
 
 
 class Pattern(object):
@@ -44,6 +62,9 @@ class Pattern(object):
             self.write(pixel_location=pixel, color=color)
         if push:
             self.commit()
+
+
+
 
 
 class Strobe(Pattern):
@@ -187,7 +208,7 @@ class Colors:
 
 def main():
     tryme = LightController()
-    tryme.run(Strobe)
+    tryme.run()
     # meh = Strobe()
     # meh.loop(color=Colors.blue2)
     # hi = Popcorn()
