@@ -3,17 +3,56 @@ import random
 from dataclasses import dataclass
 
 
-class LightController(object):
+class LightController():
     def __init__(self, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365):
         self.__pru = pru
         self.fo = open(self.__pru, 'w')
         self.pixel_count = pixel_count
+        self.right_window = range(0, 119 + 1)
+        self.center_window = range(120, 243 + 1)
+        self.left_window = range(244, 363 + 1)
+    
+    def __write(self, pixel_location: int, color: tuple):
+        r, g, b = color
+        self.fo.write(f'{pixel_location} {r} {g} {b}\n')
+        self.fo.flush()
+        if self.push:
+            self.__commit()
+    
+    def __commit(self):
+        self.fo.write('-1 0 0 0\n')
+        self.fo.flush()
 
-    def run(self):
-        NewStrobe().loop()
+    def __paint_all_windows(self, color):
+        for pixel in range(0, self.pixel_count):
+            self.__write(pixel_location=pixel, color=color)
+        self.__commit()
+
+    def __paint_pixel_list(self, color, pixels: list, push: bool = False):
+        for pixel in pixels:
+            self.__write(pixel_location=pixel, color=color)
+        if push:
+            self.__commit()
+
+class SimpleChase(LightController):
+    def __init__(self, color: tuple = (255, 255, 255)):
+        self.__color = color
+        super().__init__()
+
+    def run(self, color: tuple = (255, 255, 255), wait: int = .0005):
+        self.push = True
+        for i in range(0, self.pixel_count):
+            self._LightController__write(color=color, pixel_location=i)
+            time.sleep(wait)
+        for i in range(0, self.pixel_count):
+            self._LightController__write(pixel_location=i, color=Colors.off)
+
+    def loop(self, color, loop_count: int = 5, wait: int = .0005):
+        for loop in range(0, loop_count):
+            self.run(color, wait)
 
 
-class NewStrobe(Pattern):
+class NewStrobe(object):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
@@ -67,7 +106,7 @@ class Pattern(object):
 
 
 
-class Strobe(Pattern):
+class Strobe(object):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
@@ -85,7 +124,7 @@ class Strobe(Pattern):
             time.sleep(wait)
 
 
-class Marquee(Pattern):
+class Marquee(object):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
@@ -112,25 +151,9 @@ class Marquee(Pattern):
             self.run(color, wait)
 
 
-class SimpleChase(Pattern):
-    def __init__(self, color: tuple = (255, 255, 255)):
-        self.__color = color
-        super().__init__()
-
-    def run(self, color, wait: int = .0005):
-        self.push = True
-        for i in range(0, self.pixel_count):
-            self.write(color=color, pixel_location=i)
-            time.sleep(wait)
-        for i in range(0, self.pixel_count):
-            self.write(pixel_location=i, color=Colors.off)
-
-    def loop(self, color, loop_count: int = 5, wait: int = .0005):
-        for loop in range(0, loop_count):
-            self.run(color, wait)
 
 
-class WindowChase(Pattern):
+class WindowChase(object):
     def __init__(self, color: tuple = (255, 255, 255), direction='l'):
         self.__color = color
         self.__direction = direction
@@ -169,7 +192,7 @@ class WindowChase(Pattern):
                     print('Over 184 %d' % val)
 
 
-class Popcorn(Pattern):
+class Popcorn(object):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
@@ -194,14 +217,12 @@ class Colors:
     blue2: tuple = (0, 0, 255)
     green: tuple = (0, 0x10, 0)
     halloween_orange: tuple = (164.64062, 38.14844, 2.00781)
-    jen_orange: tuple = (164.64062, 38.14844, 2.00781)
     jen_red: tuple = (74.2890625, 0.0, 0.0)
     orange: tuple = (245, 25, 0)
     pink: tuple = (200, 25, 31)
     purple1: tuple = (0x10, 0, 0x10)
     purple2: tuple = (36.14062, 4.01562, 51.19922)
     red1: tuple = (0x10, 0, 0)
-    red2: tuple = (0x10, 0, 0)
     red3: tuple = (74.2890625, 0.0, 0.0)
     yellow: tuple = (0x10, 0x10, 0)
 
