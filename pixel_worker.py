@@ -38,36 +38,19 @@ class SimpleChase(LightController):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
+        self._write = self._LightController__write
 
     def run(self, color: tuple = (255, 255, 255), wait: int = .0005):
         self.push = True
         for i in range(0, self.pixel_count):
-            self._LightController__write(color=color, pixel_location=i)
+            self._write(color=color, pixel_location=i)
             time.sleep(wait)
         for i in range(0, self.pixel_count):
-            self._LightController__write(pixel_location=i, color=Colors.off)
+            self._write(pixel_location=i, color=Colors.off)
 
     def loop(self, color, loop_count: int = 5, wait: int = .0005):
         for loop in range(0, loop_count):
             self.run(color, wait)
-
-
-class NewStrobe(object):
-    def __init__(self, color: tuple = (255, 255, 255)):
-        self.__color = color
-        super().__init__()
-
-    def run(self, color):
-        self.paint_all_windows(Colors.off)
-        self.paint_all_windows(self.__color)
-        self.paint_all_windows(Colors.off)
-        self.paint_all_windows(self.__color)
-        self.paint_all_windows(Colors.off)
-
-    def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 0):
-        for loop in range(0, loop_count):
-            self.run(color)
-            time.sleep(wait)
 
 
 class Pattern(object):
@@ -106,16 +89,18 @@ class Pattern(object):
 
 
 
-class Strobe(object):
+class Strobe(LightController):
     def __init__(self, color: tuple = (255, 255, 255)):
+        self.push = False
         self.__color = color
+        self.paint_all_windows = self._LightController__paint_all_windows
         super().__init__()
 
     def run(self, color):
         self.paint_all_windows(Colors.off)
-        self.paint_all_windows(self.__color)
+        self.paint_all_windows(color)
         self.paint_all_windows(Colors.off)
-        self.paint_all_windows(self.__color)
+        self.paint_all_windows(color)
         self.paint_all_windows(Colors.off)
 
     def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 0):
