@@ -24,19 +24,23 @@ class LightController():
         self.fo.write('-1 0 0 0\n')
         self.fo.flush()
 
-    def __paint_all_windows(self, color):
+    def paint_all_windows(self, color):
         for pixel in range(0, self.pixel_count):
-            self.__write(pixel_location=pixel, color=color)
+            self.write(pixel_location=pixel, color=color)
         self.commit()
 
-    def __paint_pixel_list(self, color, pixels: list, push: bool = False):
+    def paint_pixel_list(self, color, pixels: list, push: bool = False):
         for pixel in pixels:
-            self.__write(pixel_location=pixel, color=color)
+            self.write(pixel_location=pixel, color=color, autocommit=push)
         if push:
             self.commit()
 
 class EmptyPattern():
     pass
+
+class ClearPixels(EmptyPattern):
+    def run(self, controller: Type[LightController]):
+        controller.paint_all_windows(Colors.off)
 
 class SimpleChase(EmptyPattern):
     def __init__(self, color: tuple = (255, 255, 255)):
@@ -51,55 +55,18 @@ class SimpleChase(EmptyPattern):
             controller.write(pixel_location=i, color=Colors.off, autocommit=True)
 
 
-class Pattern(object):
-    def __init__(self, push: bool = False):
-        self.push = push
-        self.right_window = range(0, 119 + 1)
-        self.center_window = range(120, 243 + 1)
-        self.left_window = range(244, 363 + 1)
-
-    def with_pru(self, pru):
-        self.__pru = pru
-
-    def commit(self):
-        self.fo.write('-1 0 0 0\n')
-        self.fo.flush()
-
-    def write(self, pixel_location: int, color: tuple):
-        r, g, b = color
-        self.fo.write(f'{pixel_location} {r} {g} {b}\n')
-        self.fo.flush()
-        if self.push:
-            self.commit()
-
-    def paint_all_windows(self, color):
-        for pixel in range(0, self.pixel_count):
-            self.write(pixel_location=pixel, color=color)
-        self.commit()
-
-    def paint_pixel_list(self, color, pixels: list, push: bool = False):
-        for pixel in pixels:
-            self.write(pixel_location=pixel, color=color)
-        if push:
-            self.commit()
-
-
-
-
-
-class Strobe(LightController):
+class Strobe(EmptyPattern):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.push = False
         self.__color = color
-        self.paint_all_windows = self._LightController__paint_all_windows
         super().__init__()
 
-    def run(self, color):
-        self.paint_all_windows(Colors.off)
-        self.paint_all_windows(color)
-        self.paint_all_windows(Colors.off)
-        self.paint_all_windows(color)
-        self.paint_all_windows(Colors.off)
+    def run(self, controller: Type[LightController], color):
+        controller.paint_all_windows(Colors.off)
+        controller.paint_all_windows(color)
+        controller.paint_all_windows(Colors.off)
+        controller.paint_all_windows(color)
+        controller.paint_all_windows(Colors.off)
 
     def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 0):
         for loop in range(0, loop_count):
@@ -107,26 +74,26 @@ class Strobe(LightController):
             time.sleep(wait)
 
 
-class Marquee(object):
+class Marquee(EmptyPattern):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
 
-    def run(self, color, wait: int = 1):
+    def run(self, controller: Type[LightController], color, wait: int = 1):
         evens = []
         odds = []
-        for num in range(self.pixel_count):
+        for num in range(controller.pixel_count):
             if num % 2 == 0:
                 evens.append(num)
             else:
                 odds.append(num)
-        self.paint_pixel_list(color=color, pixels=evens)
-        self.paint_pixel_list(color=Colors.off, pixels=odds)
-        self.commit()
+        controller.paint_pixel_list(color=color, pixels=evens)
+        controller.paint_pixel_list(color=Colors.off, pixels=odds)
+        controller.commit()
         time.sleep(wait)
-        self.paint_pixel_list(color=color, pixels=odds)
-        self.paint_pixel_list(color=Colors.off, pixels=evens)
-        self.commit()
+        controller.paint_pixel_list(color=color, pixels=odds)
+        controller.paint_pixel_list(color=Colors.off, pixels=evens)
+        controller.commit()
         time.sleep(wait)
 
     def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 1):
@@ -134,42 +101,40 @@ class Marquee(object):
             self.run(color, wait)
 
 
-
-
-class WindowChase(object):
+class WindowChase(EmptyPattern):
     def __init__(self, color: tuple = (255, 255, 255), direction='l'):
         self.__color = color
         self.__direction = direction
         super().__init__()
 
-    def run(self, color: tuple):
-        if self.__direction == 'l':
+    def run(self, controller: Type[LightController], color: tuple, direction: str = 'l'):
+        if direction == 'l':
             popindex = 0
-        elif self.__direction == 'r':
+        elif direction == 'r':
             popindex = -1
         center_cheat = [63, 62, 61, 60]
-        r_list = list(self.right_window)
-        c_list = list(self.center_window)
-        l_list = list(self.left_window)
-        for i, val in enumerate(self.center_window):
+        r_list = list(controller.right_window)
+        c_list = list(controller.center_window)
+        l_list = list(controller.left_window)
+        for i, val in enumerate(controller.center_window):
             if i in center_cheat:
                 try:
                     pixels = [c_list.pop(popindex)]
-                    self.paint_pixel_list(pixels=pixels, color=color, push=True)
+                    controller.paint_pixel_list(pixels=pixels, color=color, push=True)
                 except IndexError as e:
                     print('Error %s' % e)
                     print('Cheat %d' % val)
             if i < 60:
                 try:
                     pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                    self.paint_pixel_list(pixels=pixels, color=color, push=True)
+                    controller.paint_pixel_list(pixels=pixels, color=color, push=True)
                 except IndexError as e:
                     print('Error %s' % e)
                     print('Under 181 %d' % val)
             if i > 63:
                 try:
                     pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                    self.paint_pixel_list(pixels=pixels, color=color, push=True)
+                    controller.paint_pixel_list(pixels=pixels, color=color, push=True)
                 except IndexError as e:
                     print('Error %s' % e)
                     print('Over 184 %d' % val)
@@ -210,23 +175,35 @@ class Colors:
     yellow: tuple = (0x10, 0x10, 0)
 
 
-def main():
-    tryme = LightController()
-    tryme.run()
-    # meh = Strobe()
-    # meh.loop(color=Colors.blue2)
-    # hi = Popcorn()
-    # hi.run(color=Colors.halloween_orange)
-    # clear = Pattern()
-    # clear.paint_all_windows(color=Colors.off)
-    # hi.run(color=Colors.off)
-    # hi.run(color=Colors.hal)
-    # hi = Marquee(Colors.blue2)
-    # hi = Strobe()
-    # for loop in range(0, hi.loops):
-    #     hi.run(color=Colors.halloween_orange)
-    # hi.loop(color=Colors.blue1)
+class Pattern(object):
+    def __init__(self, push: bool = False):
+        self.push = push
+        self.right_window = range(0, 119 + 1)
+        self.center_window = range(120, 243 + 1)
+        self.left_window = range(244, 363 + 1)
 
+    def with_pru(self, pru):
+        self.__pru = pru
 
-if __name__ == '__main__':
-    main()
+    def commit(self):
+        self.fo.write('-1 0 0 0\n')
+        self.fo.flush()
+
+    def write(self, pixel_location: int, color: tuple):
+        r, g, b = color
+        self.fo.write(f'{pixel_location} {r} {g} {b}\n')
+        self.fo.flush()
+        if self.push:
+            self.commit()
+
+    def paint_all_windows(self, color):
+        for pixel in range(0, self.pixel_count):
+            self.write(pixel_location=pixel, color=color)
+        self.commit()
+
+    def paint_pixel_list(self, color, pixels: list, push: bool = False):
+        for pixel in pixels:
+            self.write(pixel_location=pixel, color=color)
+        if push:
+            self.commit()
+
