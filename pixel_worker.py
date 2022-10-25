@@ -35,16 +35,18 @@ class LightController():
         if push:
             self.commit()
 
-class EmptyPattern():
-    pass
 
 class Display():
     pass
 
+
 class SequentialDisplay(Display):
     def __init__(self):
         self.__patterns = [
-            Strobe(loop_count=40),
+            # Strobe(color=Colors.halloween_orange),
+            # Strobe(color=Colors.purple2),
+            # Strobe(color=Colors.white),
+            Marquee(color=Colors.halloween_orange)
         ]
 
     def run(self, controller: Type[LightController]):
@@ -52,9 +54,14 @@ class SequentialDisplay(Display):
             pattern.run(controller)
 
 
+class EmptyPattern():
+    pass
+
+
 class ClearPixels(EmptyPattern):
     def run(self, controller: Type[LightController]):
         controller.paint_all_windows(Colors.off)
+
 
 class SimpleChase(EmptyPattern):
     def __init__(self, color: tuple = (255, 255, 255)):
@@ -87,30 +94,30 @@ class Strobe(EmptyPattern):
 
 
 class Marquee(EmptyPattern):
-    def __init__(self, color: tuple = (255, 255, 255)):
+    def __init__(self, loop_count: int = 20, color: tuple = (255, 255, 255)):
         self.__color = color
+        self.__count = loop_count
+        self.__wait = 1
         super().__init__()
 
-    def run(self, controller: Type[LightController], color, wait: int = 1):
-        evens = []
-        odds = []
-        for num in range(controller.pixel_count):
-            if num % 2 == 0:
-                evens.append(num)
-            else:
-                odds.append(num)
-        controller.paint_pixel_list(color=color, pixels=evens)
-        controller.paint_pixel_list(color=Colors.off, pixels=odds)
-        controller.commit()
-        time.sleep(wait)
-        controller.paint_pixel_list(color=color, pixels=odds)
-        controller.paint_pixel_list(color=Colors.off, pixels=evens)
-        controller.commit()
-        time.sleep(wait)
-
-    def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 1):
-        for loop in range(0, loop_count):
-            self.run(color, wait)
+    def run(self, controller: Type[LightController]):
+        for loop in range(0, self.__count):
+            evens = []
+            odds = []
+            for num in range(controller.pixel_count):
+                if num % 2 == 0:
+                    evens.append(num)
+                else:
+                    odds.append(num)
+            controller.paint_pixel_list(color=self.__color, pixels=evens)
+            controller.paint_pixel_list(color=Colors.off, pixels=odds)
+            controller.commit()
+            time.sleep(self.__wait)
+            controller.paint_pixel_list(color=self.__color, pixels=odds)
+            controller.paint_pixel_list(color=Colors.off, pixels=evens)
+            controller.commit()
+            time.sleep(self.__wait)
+        controller.paint_all_windows(Colors.off)
 
 
 class WindowChase(EmptyPattern):
@@ -185,4 +192,5 @@ class Colors:
     red1: tuple = (0x10, 0, 0)
     red3: tuple = (74.2890625, 0.0, 0.0)
     yellow: tuple = (0x10, 0x10, 0)
+    white: tuple = (255, 255, 255)
 
