@@ -38,6 +38,21 @@ class LightController():
 class EmptyPattern():
     pass
 
+class Display():
+    pass
+
+class SequentialDisplay(Display):
+    def __init__(self):
+        self.__patterns = [
+            'SimpleChase',
+            'Marquee'
+        ]
+
+    def run(controller: Type[LightController]):
+        for loop in range(0, loop_count):
+            controller.run(color, wait)
+
+
 class ClearPixels(EmptyPattern):
     def run(self, controller: Type[LightController]):
         controller.paint_all_windows(Colors.off)
@@ -56,22 +71,20 @@ class SimpleChase(EmptyPattern):
 
 
 class Strobe(EmptyPattern):
-    def __init__(self, color: tuple = (255, 255, 255)):
-        self.push = False
+    def __init__(self, loop_count: int = 20, color: tuple = (255, 255, 255)):
         self.__color = color
+        self.__count = loop_count
+        self.__wait = 0
         super().__init__()
 
     def run(self, controller: Type[LightController], color):
-        controller.paint_all_windows(Colors.off)
-        controller.paint_all_windows(color)
-        controller.paint_all_windows(Colors.off)
-        controller.paint_all_windows(color)
-        controller.paint_all_windows(Colors.off)
-
-    def loop(self, color: tuple = (255, 255, 255), loop_count: int = 20, wait: int = 0):
-        for loop in range(0, loop_count):
-            self.run(color)
-            time.sleep(wait)
+        for loop in range(0, self.__count):
+            controller.paint_all_windows(Colors.off)
+            controller.paint_all_windows(color)
+            controller.paint_all_windows(Colors.off)
+            controller.paint_all_windows(color)
+            controller.paint_all_windows(Colors.off)
+            time.sleep(self.__wait)
 
 
 class Marquee(EmptyPattern):
@@ -173,37 +186,4 @@ class Colors:
     red1: tuple = (0x10, 0, 0)
     red3: tuple = (74.2890625, 0.0, 0.0)
     yellow: tuple = (0x10, 0x10, 0)
-
-
-class Pattern(object):
-    def __init__(self, push: bool = False):
-        self.push = push
-        self.right_window = range(0, 119 + 1)
-        self.center_window = range(120, 243 + 1)
-        self.left_window = range(244, 363 + 1)
-
-    def with_pru(self, pru):
-        self.__pru = pru
-
-    def commit(self):
-        self.fo.write('-1 0 0 0\n')
-        self.fo.flush()
-
-    def write(self, pixel_location: int, color: tuple):
-        r, g, b = color
-        self.fo.write(f'{pixel_location} {r} {g} {b}\n')
-        self.fo.flush()
-        if self.push:
-            self.commit()
-
-    def paint_all_windows(self, color):
-        for pixel in range(0, self.pixel_count):
-            self.write(pixel_location=pixel, color=color)
-        self.commit()
-
-    def paint_pixel_list(self, color, pixels: list, push: bool = False):
-        for pixel in pixels:
-            self.write(pixel_location=pixel, color=color)
-        if push:
-            self.commit()
 
