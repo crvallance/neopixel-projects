@@ -31,7 +31,7 @@ class LightController():
 
     def paint_pixel_list(self, color, pixels: list, push: bool = False):
         for pixel in pixels:
-            self.write(pixel_location=pixel, color=color, autocommit=push)
+            self.write(pixel_location=pixel, color=color, autocommit=False)
         if push:
             self.commit()
 
@@ -145,15 +145,15 @@ class Popcorn(object):
         self.__color = color
         super().__init__()
 
-    def run(self, color: tuple = (36.140625, 36.140625, 36.140625)):
-        self.paint_all_windows(Colors.off)
+    def run(self, controller: Type[LightController], color: tuple = (36.140625, 36.140625, 36.140625)):
+        controller.paint_all_windows(Colors.off)
         percent = 20
-        all_pixels = list(range(0, self.pixel_count))
+        all_pixels = list(range(0, controller.pixel_count))
         sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
-        while len(all_pixels) > int(self.pixel_count * percent / 100):
+        while len(all_pixels) > int(controller.pixel_count * percent / 100):
             pixel = all_pixels.pop(random.randrange(len(all_pixels)))
             time.sleep(random.choice(sleepz))
-            self.paint_pixel_list(pixels=[pixel], color=color, push=True)
+            controller.paint_pixel_list(pixels=[pixel], color=color, push=True)
 
 
 @dataclass
