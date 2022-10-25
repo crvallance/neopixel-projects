@@ -1,6 +1,7 @@
 import time
 import random
 from dataclasses import dataclass
+from typing import Type
 
 
 class LightController():
@@ -12,45 +13,42 @@ class LightController():
         self.center_window = range(120, 243 + 1)
         self.left_window = range(244, 363 + 1)
     
-    def __write(self, pixel_location: int, color: tuple):
+    def write(self, pixel_location: int, color: tuple, autocommit: bool = False):
         r, g, b = color
         self.fo.write(f'{pixel_location} {r} {g} {b}\n')
         self.fo.flush()
-        if self.push:
-            self.__commit()
+        if autocommit:
+            self.commit()
     
-    def __commit(self):
+    def commit(self):
         self.fo.write('-1 0 0 0\n')
         self.fo.flush()
 
     def __paint_all_windows(self, color):
         for pixel in range(0, self.pixel_count):
             self.__write(pixel_location=pixel, color=color)
-        self.__commit()
+        self.commit()
 
     def __paint_pixel_list(self, color, pixels: list, push: bool = False):
         for pixel in pixels:
             self.__write(pixel_location=pixel, color=color)
         if push:
-            self.__commit()
+            self.commit()
 
-class SimpleChase(LightController):
+class EmptyPattern():
+    pass
+
+class SimpleChase(EmptyPattern):
     def __init__(self, color: tuple = (255, 255, 255)):
         self.__color = color
         super().__init__()
-        self._write = self._LightController__write
 
-    def run(self, color: tuple = (255, 255, 255), wait: int = .0005):
-        self.push = True
-        for i in range(0, self.pixel_count):
-            self._write(color=color, pixel_location=i)
+    def run(self, controller: Type[LightController], color: tuple = (255, 255, 255), wait: int = .0005):
+        for i in range(0, controller.pixel_count):
+            controller.write(color=color, pixel_location=i, autocommit=True)
             time.sleep(wait)
-        for i in range(0, self.pixel_count):
-            self._write(pixel_location=i, color=Colors.off)
-
-    def loop(self, color, loop_count: int = 5, wait: int = .0005):
-        for loop in range(0, loop_count):
-            self.run(color, wait)
+        for i in range(0, controller.pixel_count):
+            controller.write(pixel_location=i, color=Colors.off, autocommit=True)
 
 
 class Pattern(object):
