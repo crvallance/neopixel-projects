@@ -44,13 +44,12 @@ class Display():
 class SequentialDisplay(Display):
     def __init__(self):
         self.__patterns = [
-            'SimpleChase',
-            'Marquee'
+            Strobe(loop_count=40),
         ]
 
-    def run(controller: Type[LightController]):
-        for loop in range(0, loop_count):
-            controller.run(color, wait)
+    def run(self, controller: Type[LightController]):
+        for pattern in self.__patterns:
+            pattern.run(controller)
 
 
 class ClearPixels(EmptyPattern):
@@ -77,14 +76,14 @@ class Strobe(EmptyPattern):
         self.__wait = 0
         super().__init__()
 
-    def run(self, controller: Type[LightController], color):
+    def run(self, controller: Type[LightController]):
         for loop in range(0, self.__count):
             controller.paint_all_windows(Colors.off)
-            controller.paint_all_windows(color)
+            controller.paint_all_windows(self.__color)
             controller.paint_all_windows(Colors.off)
-            controller.paint_all_windows(color)
-            controller.paint_all_windows(Colors.off)
+            controller.paint_all_windows(self.__color)
             time.sleep(self.__wait)
+        controller.paint_all_windows(Colors.off)
 
 
 class Marquee(EmptyPattern):
