@@ -94,21 +94,39 @@ class Halloween(RandomDisplay):
             WindowChase(color=Colors.green),
             WindowChase(color=Colors.off)
             ]
+        chase5 = [
+            WindowChase(color=Colors.halloween_orange, direction='r'),
+            WindowChase(color=Colors.off)
+            ]
+        chase6 = [
+            WindowChase(color=Colors.purple2, direction='r'),
+            WindowChase(color=Colors.off)
+            ]
+        chase7 = [
+            WindowChase(color=Colors.green, direction='r'),
+            WindowChase(color=Colors.off)
+            ]
         chase1_repeater = RepeaterPattern(chase1, 5)
         chase2_repeater = RepeaterPattern(chase2, 5)
         chase3_repeater = RepeaterPattern(chase3, 5)
         chase4_repeater = RepeaterPattern(chase4, 5)
+        chase5_repeater = RepeaterPattern(chase5, 5)
+        chase6_repeater = RepeaterPattern(chase6, 5)
+        chase7_repeater = RepeaterPattern(chase7, 5)
         self._patterns = [
             # Strobe(color=Colors.halloween_orange, loop_count=30),
             # Strobe(color=Colors.purple2, loop_count=30),
-            # Marquee(color1=Colors.halloween_orange, loop_count=15),
+            Marquee(color1=Colors.halloween_orange, loop_count=15),
             # Marquee(color1=Colors.halloween_orange, color2=Colors.purple2, loop_count=15),
-            Marquee(color1=Colors.halloween_orange, color2=Colors.purple2, loop_count=15, dense = True),
+            # Marquee(color1=Colors.halloween_orange, color2=Colors.purple2, loop_count=15, dense = True),
             # Marquee(color1=Colors.purple2, loop_count=15),
             # chase1_repeater,
             # chase2_repeater,
             # chase3_repeater,
             # chase4_repeater,
+            # chase5_repeater,
+            # chase6_repeater,
+            # chase7_repeater,
         ]
 
 
@@ -172,18 +190,25 @@ class Marquee(EmptyPattern):
                     evens.append(num)
                 else:
                     odds.append(num)
-            controller.paint_pixel_list(color=self._color1, pixels=evens)
-            if self._dense:
+            if self._dense and self._color2 != (0, 0, 0):
+                controller.paint_pixel_list(color=self._color1, pixels=evens)
                 controller.paint_pixel_list(color=self._color2, pixels=odds)
+            elif not self._dense and self._color2 != (0, 0, 0):
+                controller.paint_pixel_list(color=self._color1, pixels=evens)
+                controller.paint_pixel_list(color=Colors.off, pixels=odds)
             else:
+                controller.paint_pixel_list(color=self._color1, pixels=evens)
                 controller.paint_pixel_list(color=Colors.off, pixels=odds)
             controller.commit()
             time.sleep(self._wait)
-            if self._dense:
+            if self._dense and self._color2 != (0, 0, 0):
                 controller.paint_pixel_list(color=self._color1, pixels=odds)
                 controller.paint_pixel_list(color=self._color2, pixels=evens)
-            else:
+            elif not self._dense and self._color2 != (0, 0, 0):
                 controller.paint_pixel_list(color=self._color2, pixels=odds)
+                controller.paint_pixel_list(color=Colors.off, pixels=evens)
+            else:
+                controller.paint_pixel_list(color=self._color1, pixels=odds)
                 controller.paint_pixel_list(color=Colors.off, pixels=evens)
             controller.commit()
             time.sleep(self._wait)
