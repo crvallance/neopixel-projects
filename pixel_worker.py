@@ -55,7 +55,7 @@ class RepeaterPattern(Pattern):
 class SequentialDisplay(Display):
     def __init__(self):
         repeater = RepeaterPattern(test_pattern, 5)
-        self.__patterns = [
+        self._patterns = [
             # Strobe(color=Colors.halloween_orange),
             # Strobe(color=Colors.purple2),
             # Marquee(color=Colors.halloween_orange)
@@ -63,12 +63,26 @@ class SequentialDisplay(Display):
             # WindowChase(color=Colors.halloween_orange, direction='r'),
             # WindowChase(color=Colors.purple2, direction='l'),
             # WindowChase(color=Colors.off, direction='r'),
-            repeater
+            # repeater
+            Popcorn()
         ]
 
     def run(self, controller: Type[LightController]):
-        for pattern in self.__patterns:
+        for pattern in self._patterns:
             pattern.run(controller)
+
+class Halloween(SequentialDisplay):
+    def __init__(self):
+        super().__init__()
+        self._patterns = [
+            Strobe(color=Colors.halloween_orange),
+            Strobe(color=Colors.purple2),
+            Marquee(color=Colors.halloween_orange),
+            Marquee(color=Colors.purple2),
+            WindowChase(color=Colors.halloween_orange, direction='r'),
+            WindowChase(color=Colors.purple2, direction='l'),
+            WindowChase(color=Colors.off, direction='r'),
+        ]
 
 
 class EmptyPattern():
@@ -183,19 +197,23 @@ class WindowChase(EmptyPattern):
 
 
 class Popcorn(object):
-    def __init__(self, color: tuple = (255, 255, 255)):
+    def __init__(self, loop_count: int = 1, color: tuple = (36.140625, 36.140625, 36.140625), percent: int = 20):
         self.__color = color
+        self.__count = loop_count
+        self.__wait = 1
+        self.__percent = percent
+        self.__sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
         super().__init__()
 
-    def run(self, controller: Type[LightController], color: tuple = (36.140625, 36.140625, 36.140625)):
+    def run(self, controller: Type[LightController]):
+        for loop in range(0, self.__count):
+            controller.paint_all_windows(Colors.off)
+            all_pixels = list(range(0, controller.pixel_count))
+            while len(all_pixels) > int(controller.pixel_count * self.__percent / 100):
+                pixel = all_pixels.pop(random.randrange(len(all_pixels)))
+                time.sleep(random.choice(self.__sleepz))
+                controller.paint_pixel_list(pixels=[pixel], color=self.__color, push=True)
         controller.paint_all_windows(Colors.off)
-        percent = 20
-        all_pixels = list(range(0, controller.pixel_count))
-        sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
-        while len(all_pixels) > int(controller.pixel_count * percent / 100):
-            pixel = all_pixels.pop(random.randrange(len(all_pixels)))
-            time.sleep(random.choice(sleepz))
-            controller.paint_pixel_list(pixels=[pixel], color=color, push=True)
 
 @dataclass
 class Colors:
