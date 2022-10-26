@@ -6,8 +6,8 @@ from typing import Type
 
 class LightController():
     def __init__(self, pru: str = '/dev/rpmsg_pru30', pixel_count: int = 365):
-        self.__pru = pru
-        self.fo = open(self.__pru, 'w')
+        self._pru = pru
+        self.fo = open(self._pru, 'w')
         self.pixel_count = pixel_count
         self.right_window = range(0, 119 + 1)
         self.center_window = range(120, 243 + 1)
@@ -44,12 +44,12 @@ class Pattern():
 
 class RepeaterPattern(Pattern):
     def __init__(self, patterns, count):
-        self.__patterns = patterns
-        self.__count = count
+        self._patterns = patterns
+        self._count = count
 
     def run(self, controller: Type[LightController]):
-        for _ in range(self.__count):
-            for pattern in self.__patterns:
+        for _ in range(self._count):
+            for pattern in self._patterns:
                 pattern.run(controller)
 
 class SequentialDisplay(Display):
@@ -96,46 +96,46 @@ class ClearPixels(EmptyPattern):
 
 class SimpleChase(EmptyPattern):
     def __init__(self, loop_count: int = 5, color: tuple = (255, 255, 255)):
-        self.__color = color
-        self.__count = loop_count
-        self.__wait = 0
+        self._color = color
+        self._count = loop_count
+        self._wait = 0
         super().__init__()
 
     def run(self, controller: Type[LightController], color: tuple = (255, 255, 255), wait: int = .0005):
-        for loop in range(0, self.__count):
+        for loop in range(0, self._count):
             for i in range(0, controller.pixel_count):
-                controller.write(color=self.__color, pixel_location=i, autocommit=True)
-                time.sleep(self.__wait)
+                controller.write(color=self._color, pixel_location=i, autocommit=True)
+                time.sleep(self._wait)
             for i in range(0, controller.pixel_count):
                 controller.write(pixel_location=i, color=Colors.off, autocommit=True)
 
 
 class Strobe(EmptyPattern):
     def __init__(self, loop_count: int = 20, color: tuple = (255, 255, 255)):
-        self.__color = color
-        self.__count = loop_count
-        self.__wait = 0
+        self._color = color
+        self._count = loop_count
+        self._wait = 0
         super().__init__()
 
     def run(self, controller: Type[LightController]):
-        for loop in range(0, self.__count):
+        for loop in range(0, self._count):
             controller.paint_all_windows(Colors.off)
-            controller.paint_all_windows(self.__color)
+            controller.paint_all_windows(self._color)
             controller.paint_all_windows(Colors.off)
-            controller.paint_all_windows(self.__color)
-            time.sleep(self.__wait)
+            controller.paint_all_windows(self._color)
+            time.sleep(self._wait)
         controller.paint_all_windows(Colors.off)
 
 
 class Marquee(EmptyPattern):
     def __init__(self, loop_count: int = 20, color: tuple = (255, 255, 255)):
-        self.__color = color
-        self.__count = loop_count
-        self.__wait = 1
+        self._color = color
+        self._count = loop_count
+        self._wait = 1
         super().__init__()
 
     def run(self, controller: Type[LightController]):
-        for loop in range(0, self.__count):
+        for loop in range(0, self._count):
             evens = []
             odds = []
             for num in range(controller.pixel_count):
@@ -143,30 +143,30 @@ class Marquee(EmptyPattern):
                     evens.append(num)
                 else:
                     odds.append(num)
-            controller.paint_pixel_list(color=self.__color, pixels=evens)
+            controller.paint_pixel_list(color=self._color, pixels=evens)
             controller.paint_pixel_list(color=Colors.off, pixels=odds)
             controller.commit()
-            time.sleep(self.__wait)
-            controller.paint_pixel_list(color=self.__color, pixels=odds)
+            time.sleep(self._wait)
+            controller.paint_pixel_list(color=self._color, pixels=odds)
             controller.paint_pixel_list(color=Colors.off, pixels=evens)
             controller.commit()
-            time.sleep(self.__wait)
+            time.sleep(self._wait)
         controller.paint_all_windows(Colors.off)
 
 
 class WindowChase(EmptyPattern):
     def __init__(self, loop_count: int = 1, color: tuple = (255, 255, 255), direction='l'):
-        self.__direction = direction
-        self.__color = color
-        self.__count = loop_count
-        self.__wait = 1
+        self._direction = direction
+        self._color = color
+        self._count = loop_count
+        self._wait = 1
         super().__init__()
     
     def run(self, controller: Type[LightController]):
-        for loop in range(0, self.__count):
-            if self.__direction == 'l':
+        for loop in range(0, self._count):
+            if self._direction == 'l':
                 popindex = 0
-            elif self.__direction == 'r':
+            elif self._direction == 'r':
                 popindex = -1
             center_cheat = [63, 62, 61, 60]
             r_list = list(controller.right_window)
@@ -176,21 +176,21 @@ class WindowChase(EmptyPattern):
                 if i in center_cheat:
                     try:
                         pixels = [c_list.pop(popindex)]
-                        controller.paint_pixel_list(pixels=pixels, color=self.__color, push=True)
+                        controller.paint_pixel_list(pixels=pixels, color=self._color, push=True)
                     except IndexError as e:
                         print('Error %s' % e)
                         print('Cheat %d' % val)
                 if i < 60:
                     try:
                         pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                        controller.paint_pixel_list(pixels=pixels, color=self.__color, push=True)
+                        controller.paint_pixel_list(pixels=pixels, color=self._color, push=True)
                     except IndexError as e:
                         print('Error %s' % e)
                         print('Under 181 %d' % val)
                 if i > 63:
                     try:
                         pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                        controller.paint_pixel_list(pixels=pixels, color=self.__color, push=True)
+                        controller.paint_pixel_list(pixels=pixels, color=self._color, push=True)
                     except IndexError as e:
                         print('Error %s' % e)
                         print('Over 184 %d' % val)
@@ -198,21 +198,21 @@ class WindowChase(EmptyPattern):
 
 class Popcorn(object):
     def __init__(self, loop_count: int = 1, color: tuple = (36.140625, 36.140625, 36.140625), percent: int = 20):
-        self.__color = color
-        self.__count = loop_count
-        self.__wait = 1
-        self.__percent = percent
-        self.__sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
+        self._color = color
+        self._count = loop_count
+        self._wait = 1
+        self._percent = percent
+        self._sleepz = [.25, .5, .75, .125, .0625, 1, 1.5]
         super().__init__()
 
     def run(self, controller: Type[LightController]):
-        for loop in range(0, self.__count):
+        for loop in range(0, self._count):
             controller.paint_all_windows(Colors.off)
             all_pixels = list(range(0, controller.pixel_count))
-            while len(all_pixels) > int(controller.pixel_count * self.__percent / 100):
+            while len(all_pixels) > int(controller.pixel_count * self._percent / 100):
                 pixel = all_pixels.pop(random.randrange(len(all_pixels)))
-                time.sleep(random.choice(self.__sleepz))
-                controller.paint_pixel_list(pixels=[pixel], color=self.__color, push=True)
+                time.sleep(random.choice(self._sleepz))
+                controller.paint_pixel_list(pixels=[pixel], color=self._color, push=True)
         controller.paint_all_windows(Colors.off)
 
 @dataclass
