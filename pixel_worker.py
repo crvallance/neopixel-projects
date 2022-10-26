@@ -54,34 +54,61 @@ class RepeaterPattern(Pattern):
 
 class SequentialDisplay(Display):
     def __init__(self):
-        repeater = RepeaterPattern(test_pattern, 5)
         self._patterns = [
-            # Strobe(color=Colors.halloween_orange),
-            # Strobe(color=Colors.purple2),
-            # Marquee(color=Colors.halloween_orange)
-            # SimpleChase(color=Colors.halloween_orange)
-            # WindowChase(color=Colors.halloween_orange, direction='r'),
-            # WindowChase(color=Colors.purple2, direction='l'),
-            # WindowChase(color=Colors.off, direction='r'),
-            # repeater
-            Popcorn()
+            SimpleChase(color=Colors.halloween_orange)
         ]
 
     def run(self, controller: Type[LightController]):
         for pattern in self._patterns:
             pattern.run(controller)
 
-class Halloween(SequentialDisplay):
+class RandomDisplay(Display):
+    def __init__(self):
+        self._patterns = [
+            SimpleChase(color=Colors.halloween_orange),
+        ]
+
+    def run(self, controller: Type[LightController]):
+        random.shuffle(self._patterns)
+        for pattern in self._patterns:
+            pattern.run(controller)
+
+class Halloween(RandomDisplay):
     def __init__(self):
         super().__init__()
-        self._patterns = [
-            Strobe(color=Colors.halloween_orange),
-            Strobe(color=Colors.purple2),
-            Marquee(color=Colors.halloween_orange),
-            Marquee(color=Colors.purple2),
+        chase1 = [
             WindowChase(color=Colors.halloween_orange, direction='r'),
             WindowChase(color=Colors.purple2, direction='l'),
-            WindowChase(color=Colors.off, direction='r'),
+            WindowChase(color=Colors.green, direction='r'),
+            WindowChase(color=Colors.off)
+            ]
+        chase2 = [
+            WindowChase(color=Colors.halloween_orange),
+            WindowChase(color=Colors.off)
+            ]
+        chase3 = [
+            WindowChase(color=Colors.purple2),
+            WindowChase(color=Colors.off)
+            ]
+        chase4 = [
+            WindowChase(color=Colors.green),
+            WindowChase(color=Colors.off)
+            ]
+        chase1_repeater = RepeaterPattern(chase1, 5)
+        chase2_repeater = RepeaterPattern(chase2, 5)
+        chase3_repeater = RepeaterPattern(chase3, 5)
+        chase4_repeater = RepeaterPattern(chase4, 5)
+        self._patterns = [
+            # Strobe(color=Colors.halloween_orange, loop_count=30),
+            # Strobe(color=Colors.purple2, loop_count=30),
+            # Marquee(color1=Colors.halloween_orange, loop_count=15),
+            # Marquee(color1=Colors.halloween_orange, color2=Colors.purple2, loop_count=15),
+            Marquee(color1=Colors.halloween_orange, color2=Colors.purple2, loop_count=15, dense = True),
+            # Marquee(color1=Colors.purple2, loop_count=15),
+            # chase1_repeater,
+            # chase2_repeater,
+            # chase3_repeater,
+            # chase4_repeater,
         ]
 
 
@@ -128,8 +155,10 @@ class Strobe(EmptyPattern):
 
 
 class Marquee(EmptyPattern):
-    def __init__(self, loop_count: int = 20, color: tuple = (255, 255, 255)):
-        self._color = color
+    def __init__(self, loop_count: int = 20, color1: tuple = (255, 255, 255), color2: tuple = (0, 0, 0), dense: bool = False):
+        self._color1 = color1
+        self._color2 = color2
+        self._dense = dense
         self._count = loop_count
         self._wait = 1
         super().__init__()
@@ -143,12 +172,19 @@ class Marquee(EmptyPattern):
                     evens.append(num)
                 else:
                     odds.append(num)
-            controller.paint_pixel_list(color=self._color, pixels=evens)
-            controller.paint_pixel_list(color=Colors.off, pixels=odds)
+            controller.paint_pixel_list(color=self._color1, pixels=evens)
+            if self._dense:
+                controller.paint_pixel_list(color=self._color2, pixels=odds)
+            else:
+                controller.paint_pixel_list(color=Colors.off, pixels=odds)
             controller.commit()
             time.sleep(self._wait)
-            controller.paint_pixel_list(color=self._color, pixels=odds)
-            controller.paint_pixel_list(color=Colors.off, pixels=evens)
+            if self._dense:
+                controller.paint_pixel_list(color=self._color1, pixels=odds)
+                controller.paint_pixel_list(color=self._color2, pixels=evens)
+            else:
+                controller.paint_pixel_list(color=self._color2, pixels=odds)
+                controller.paint_pixel_list(color=Colors.off, pixels=evens)
             controller.commit()
             time.sleep(self._wait)
         controller.paint_all_windows(Colors.off)
@@ -234,8 +270,3 @@ class Colors:
     yellow: tuple = (0x10, 0x10, 0)
     white: tuple = (255, 255, 255)
 
-test_pattern = [
-  WindowChase(color=Colors.halloween_orange, direction='r'),
-  WindowChase(color=Colors.purple2, direction='l'),
-  WindowChase(color=Colors.off, direction='r')
-]
