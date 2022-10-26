@@ -39,14 +39,31 @@ class LightController():
 class Display():
     pass
 
+class Pattern():
+    pass
+
+class RepeaterPattern(Pattern):
+    def __init__(self, patterns, count):
+        self.__patterns = patterns
+        self.__count = count
+
+    def run(self, controller: Type[LightController]):
+        for _ in range(self.__count):
+            for pattern in self.__patterns:
+                pattern.run(controller)
 
 class SequentialDisplay(Display):
     def __init__(self):
+        repeater = RepeaterPattern(test_pattern, 5)
         self.__patterns = [
             # Strobe(color=Colors.halloween_orange),
             # Strobe(color=Colors.purple2),
-            # Strobe(color=Colors.white),
-            Marquee(color=Colors.halloween_orange)
+            # Marquee(color=Colors.halloween_orange)
+            # SimpleChase(color=Colors.halloween_orange)
+            # WindowChase(color=Colors.halloween_orange, direction='r'),
+            # WindowChase(color=Colors.purple2, direction='l'),
+            # WindowChase(color=Colors.off, direction='r'),
+            repeater
         ]
 
     def run(self, controller: Type[LightController]):
@@ -64,16 +81,19 @@ class ClearPixels(EmptyPattern):
 
 
 class SimpleChase(EmptyPattern):
-    def __init__(self, color: tuple = (255, 255, 255)):
+    def __init__(self, loop_count: int = 5, color: tuple = (255, 255, 255)):
         self.__color = color
+        self.__count = loop_count
+        self.__wait = 0
         super().__init__()
 
     def run(self, controller: Type[LightController], color: tuple = (255, 255, 255), wait: int = .0005):
-        for i in range(0, controller.pixel_count):
-            controller.write(color=color, pixel_location=i, autocommit=True)
-            time.sleep(wait)
-        for i in range(0, controller.pixel_count):
-            controller.write(pixel_location=i, color=Colors.off, autocommit=True)
+        for loop in range(0, self.__count):
+            for i in range(0, controller.pixel_count):
+                controller.write(color=self.__color, pixel_location=i, autocommit=True)
+                time.sleep(self.__wait)
+            for i in range(0, controller.pixel_count):
+                controller.write(pixel_location=i, color=Colors.off, autocommit=True)
 
 
 class Strobe(EmptyPattern):
@@ -121,42 +141,45 @@ class Marquee(EmptyPattern):
 
 
 class WindowChase(EmptyPattern):
-    def __init__(self, color: tuple = (255, 255, 255), direction='l'):
-        self.__color = color
+    def __init__(self, loop_count: int = 1, color: tuple = (255, 255, 255), direction='l'):
         self.__direction = direction
+        self.__color = color
+        self.__count = loop_count
+        self.__wait = 1
         super().__init__()
-
-    def run(self, controller: Type[LightController], color: tuple, direction: str = 'l'):
-        if direction == 'l':
-            popindex = 0
-        elif direction == 'r':
-            popindex = -1
-        center_cheat = [63, 62, 61, 60]
-        r_list = list(controller.right_window)
-        c_list = list(controller.center_window)
-        l_list = list(controller.left_window)
-        for i, val in enumerate(controller.center_window):
-            if i in center_cheat:
-                try:
-                    pixels = [c_list.pop(popindex)]
-                    controller.paint_pixel_list(pixels=pixels, color=color, push=True)
-                except IndexError as e:
-                    print('Error %s' % e)
-                    print('Cheat %d' % val)
-            if i < 60:
-                try:
-                    pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                    controller.paint_pixel_list(pixels=pixels, color=color, push=True)
-                except IndexError as e:
-                    print('Error %s' % e)
-                    print('Under 181 %d' % val)
-            if i > 63:
-                try:
-                    pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
-                    controller.paint_pixel_list(pixels=pixels, color=color, push=True)
-                except IndexError as e:
-                    print('Error %s' % e)
-                    print('Over 184 %d' % val)
+    
+    def run(self, controller: Type[LightController]):
+        for loop in range(0, self.__count):
+            if self.__direction == 'l':
+                popindex = 0
+            elif self.__direction == 'r':
+                popindex = -1
+            center_cheat = [63, 62, 61, 60]
+            r_list = list(controller.right_window)
+            c_list = list(controller.center_window)
+            l_list = list(controller.left_window)
+            for i, val in enumerate(controller.center_window):
+                if i in center_cheat:
+                    try:
+                        pixels = [c_list.pop(popindex)]
+                        controller.paint_pixel_list(pixels=pixels, color=self.__color, push=True)
+                    except IndexError as e:
+                        print('Error %s' % e)
+                        print('Cheat %d' % val)
+                if i < 60:
+                    try:
+                        pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
+                        controller.paint_pixel_list(pixels=pixels, color=self.__color, push=True)
+                    except IndexError as e:
+                        print('Error %s' % e)
+                        print('Under 181 %d' % val)
+                if i > 63:
+                    try:
+                        pixels = [r_list.pop(popindex), c_list.pop(popindex), l_list.pop(popindex)]
+                        controller.paint_pixel_list(pixels=pixels, color=self.__color, push=True)
+                    except IndexError as e:
+                        print('Error %s' % e)
+                        print('Over 184 %d' % val)
 
 
 class Popcorn(object):
@@ -173,7 +196,6 @@ class Popcorn(object):
             pixel = all_pixels.pop(random.randrange(len(all_pixels)))
             time.sleep(random.choice(sleepz))
             controller.paint_pixel_list(pixels=[pixel], color=color, push=True)
-
 
 @dataclass
 class Colors:
@@ -194,3 +216,8 @@ class Colors:
     yellow: tuple = (0x10, 0x10, 0)
     white: tuple = (255, 255, 255)
 
+test_pattern = [
+  WindowChase(color=Colors.halloween_orange, direction='r'),
+  WindowChase(color=Colors.purple2, direction='l'),
+  WindowChase(color=Colors.off, direction='r')
+]
